@@ -2,7 +2,7 @@
 using namespace std;
 //using namespace vm;
 /******************************************************************************************/ 
-int theshold(Image* img, int threshold)
+int threshold_derp(Image* img, int thresh)
 {
   int retVal = 0;
  

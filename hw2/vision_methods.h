@@ -15,8 +15,7 @@
     float m_roundness;
   };
 
-  void derp(void){};
-  int threshold(Image* img, int threshold);
+  int threshold_derp(Image* img, int thresh);
   int connect_components(Image* img);
   std::vector<SObjectLabel> get_morphology(Image * img);
   std::vector<SObjectLabel> recognize(Image* img, std::vector<SObjectLabel>& db);
