@@ -2,9 +2,11 @@
 #define VISION_METHODS_H
 #include "vision_utilities.h"
 #include <vector>
-
+#define COLOR_WHITE 255
+#define COLOR_BLACK 0 
 //namespace vm
 //{
+
   struct SObjectLabel
   {
     int m_label;
@@ -15,7 +17,7 @@
     float m_roundness;
   };
 
-  int threshold_derp(Image* img, int thresh);
+  int threshold(Image* img, int thresh);
   int connect_components(Image* img);
   std::vector<SObjectLabel> get_morphology(Image * img);
   std::vector<SObjectLabel> recognize(Image* img, std::vector<SObjectLabel>& db);

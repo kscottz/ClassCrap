@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
       return 1;
     }
 
-  retVal =  threshold_derp(inImg, thresh);
+  retVal =  threshold(inImg, thresh);
   if( retVal )
     {
       cout << "Failed to threshold image." << endl;
