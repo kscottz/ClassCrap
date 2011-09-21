@@ -1,3 +1,6 @@
+#ifndef VISION_UTILITIES_H
+#define VISION_UTILITIES_H
+
 #include <math.h>
 #include <sys/time.h>
 
@@ -151,3 +154,4 @@ int writeImageColor(const ImageColor *im, const char *fname);
  *  NO WARRANTIES: use at your own risk
  */
 int line(Image *im, int y0, int x0, int y1, int x1, int color);
+#endif // VISION_UTILITIES_H

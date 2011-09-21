@@ -1,7 +1,7 @@
 # Makefile for computer vision hw2
 
 # Your UNI
-UNI = abc1234
+UNI = kas2221
 
 # VARIOUS VARIABLES (you will need to change some of these)
 # The compiler. If you're writing code using c++, change gcc to g++
@@ -32,25 +32,25 @@ THRESHOLD = 100
 # generated from running the 'test' target. If you generate any other files,
 # make sure this is correct. This list of files is deleted when 'make clean'
 # or 'make submit' are run (to prevent submitting all these files).
-OUTPUTS_TO_CLEAN = p11.pgm p12.pgm p13.pgm p21.pgm p22.pgm p23.pgm p31.pgm p32.pgm p33.pgm p421.pgm p431.pgm p413.pgm p423.pgm data1 data2 data3
+OUTPUTS_TO_CLEAN = p11.pgm p12.pgm p13.pgm p21.pgm p22.pgm p23.pgm p31.pgm p32.pgm p33.pgm p421.pgm p431.pgm p413.pgm p423.pgm data1 data2 data3 *.h~ *.c~ *.cpp~ *.dSYM
 
 # THE BUILD RULES (you shouldn't need to edit any of these)
 # 'make test' builds all 4 programs and then tests them.
 # You should check to see that the final output images p4xx.pgm are correct
 test: all
-	p1 two_objects.pgm $(THRESHOLD) p11.pgm
-	p1 many_objects_1.pgm $(THRESHOLD) p12.pgm
-	p1 many_objects_2.pgm $(THRESHOLD) p13.pgm
-	p2 p11.pgm p21.pgm
-	p2 p12.pgm p22.pgm
-	p2 p13.pgm p23.pgm
-	p3 p21.pgm data1 p31.pgm
-	p3 p22.pgm data2 p32.pgm
-	p3 p23.pgm data3 p33.pgm
-	p4 p22.pgm data1 p421.pgm
-	p4 p23.pgm data1 p431.pgm
-	p4 p21.pgm data3 p413.pgm
-	p4 p22.pgm data3 p423.pgm
+	./p1 two_objects.pgm $(THRESHOLD) p11.pgm
+	./p1 many_objects_1.pgm $(THRESHOLD) p12.pgm
+	./p1 many_objects_2.pgm $(THRESHOLD) p13.pgm
+	./p2 p11.pgm p21.pgm
+	./p2 p12.pgm p22.pgm
+	./p2 p13.pgm p23.pgm
+	./p3 p21.pgm data1 p31.pgm
+	./p3 p22.pgm data2 p32.pgm
+	./p3 p23.pgm data3 p33.pgm
+	./p4 p22.pgm data1 p421.pgm
+	./p4 p23.pgm data1 p431.pgm
+	./p4 p21.pgm data3 p413.pgm
+	./p4 p22.pgm data3 p423.pgm
 	
 
 # 'make all' builds all 4 programs (but doesn't run them)
