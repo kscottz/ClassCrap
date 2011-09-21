@@ -1,7 +1,8 @@
 #include "vision_methods.h"
 using namespace std;
+//using namespace vm;
 /******************************************************************************************/ 
-int theshold(Image* img, unsigned int threshold)
+int theshold(Image* img, int threshold)
 {
   int retVal = 0;
  
@@ -26,3 +27,4 @@ vector<SObjectLabel> recognize(Image* img, std::vector<SObjectLabel>& db)
   return retVal;
 }
 /******************************************************************************************/ 
+

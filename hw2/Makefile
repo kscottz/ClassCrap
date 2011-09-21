@@ -17,6 +17,9 @@ LFLAGS = -lm
 UTILS = vision_utilities.c
 UTILSH = vision_utilities.h
 
+METHODS = vision_methods.cpp
+METHODSH = vision_methods.h
+
 # Enter the names of your source files here. If you have header files as well,
 # then do not include them here (they will be autoincluded).
 P1SRC = p1.cpp
@@ -57,8 +60,8 @@ test: all
 all: p1 p2 p3 p4
 
 # 'make p1' builds p1 only
-p1: $(P1SRC) $(UTILS)
-	$(CC) $(CFLAGS) -o $@ $(P1SRC) $(UTILS) $(LFLAGS)
+p1: $(P1SRC) $(UTILS) $(METHODS)
+	$(CC) $(CFLAGS) -o $@ $(P1SRC) $(METHODS) $(UTILS) $(LFLAGS)
 
 # 'make p2' builds p2 only
 p2: $(P2SRC) $(UTILS)
