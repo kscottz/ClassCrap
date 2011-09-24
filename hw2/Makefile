@@ -64,16 +64,16 @@ p1: $(P1SRC) $(UTILS) $(METHODS)
 	$(CC) $(CFLAGS) -o $@ $(P1SRC) $(METHODS) $(UTILS) $(LFLAGS)
 
 # 'make p2' builds p2 only
-p2: $(P2SRC) $(UTILS)
-	$(CC) $(CFLAGS) -o $@ $(P2SRC) $(UTILS) $(LFLAGS)
+p2: $(P2SRC) $(UTILS) $(METHODS)
+	$(CC) $(CFLAGS) -o $@ $(P2SRC) $(METHODS) $(UTILS) $(LFLAGS)
 
 # 'make p3' builds p3 only
-p3: $(P3SRC) $(UTILS)
-	$(CC) $(CFLAGS) -o $@ $(P3SRC) $(UTILS) $(LFLAGS)
+p3: $(P3SRC) $(UTILS) $(METHODS)
+	$(CC) $(CFLAGS) -o $@ $(P3SRC) $(METHODS) $(UTILS) $(LFLAGS)
 
 # 'make p4' builds p4 only
-p4: $(P4SRC) $(UTILS)
-	$(CC) $(CFLAGS) -o $@ $(P4SRC) $(UTILS) $(LFLAGS)
+p4: $(P4SRC) $(UTILS) $(METHODS)
+	$(CC) $(CFLAGS) -o $@ $(P4SRC) $(METHODS) $(UTILS) $(LFLAGS)
 
 # the rule for building the vision utilities
 vision_utilities.o: vision_utilities.c vision_utilities.h
