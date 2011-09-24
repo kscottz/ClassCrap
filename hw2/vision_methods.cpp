@@ -4,6 +4,8 @@
 #include <map>
 #include <algorithm>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include "limits.h"
 #include <math.h>
 using namespace std;
@@ -271,15 +273,18 @@ vector<SObjectLabel> get_morphology(Image * img)
       float m20p=newObj.m_mu20/newObj.m_mu00;// second order moments
       float m02p=newObj.m_mu02/newObj.m_mu00;
       float m11p=newObj.m_mu11/newObj.m_mu00;
-      newObj.m_angle = (atan((2.00*m11p)/(m20p-m02p))/2.00); // rotation angle
+      newObj.m_angle = (180.00/PI)*(atan((2.00*m11p)/(m20p-m02p))/2.00); // rotation angle
       // first eigen value
       float e1 = ((m20p+m02p)/2.0)+(sqrt((4.0*m11p*m11p)+((m20p-m02p)*(m20p-m02p)))/2.00);
       // second eigen value
       float e2 = ((m20p+m02p)/2.0)-(sqrt((4.0*m11p*m11p)+((m20p-m02p)*(m20p-m02p)))/2.00);
+      // roundness is the ratio of the eigen vectors 
       newObj.m_roundness = e1/e2;
+      // moment
+      newObj.m_moment = (newObj.m_mu20+newObj.m_mu02)/(newObj.m_mu00*newObj.m_mu00);
       setPixel(img,newObj.m_y_pos,newObj.m_x_pos,255);
-      cout << "color " << newObj.m_label << "(" << newObj.m_x_pos
-	   << ", " << newObj.m_y_pos <<") " << 180.00*(newObj.m_angle/(3.1415962)) << " " << newObj.m_roundness  << endl; 
+      //cout << "color " << newObj.m_label << "(" << newObj.m_x_pos
+      //   << ", " << newObj.m_y_pos <<") " << (newObj.m_angle) << " " << newObj.m_roundness  << endl; 
       retVal.push_back(newObj);
     }
   
@@ -292,4 +297,62 @@ vector<SObjectLabel> recognize(Image* img, std::vector<SObjectLabel>& db)
   return retVal;
 }
 /******************************************************************************************/ 
-
+int write_database(string fname, vector<SObjectLabel>& data)
+{
+  int retVal = 0;
+  ofstream myFile;
+  myFile.open(fname.c_str());
+  if(myFile.good())
+    {
+      vector<SObjectLabel>::iterator iter;
+      for(iter = data.begin(); iter != data.end(); ++iter)
+	{
+	  myFile << iter->m_label << " "
+		 << iter->m_y_pos << " " 
+		 << iter->m_x_pos << " " 
+		 << iter->m_moment << " " 
+		 << iter->m_angle << " " 
+		 << iter->m_roundness << " " 
+		 << endl; 
+	}
+    }
+  else
+    {
+      retVal = 1;
+    }
+  myFile.close();
+  return retVal;
+}
+/******************************************************************************************/ 
+vector<SObjectLabel> read_database(string fname)
+{
+  vector<SObjectLabel> retVal;
+  ifstream myFile;
+  int sz = 1024;
+  char* buff = new char[sz];
+  myFile.open(fname.c_str());
+  if(myFile.is_open())
+    {
+      while(!myFile.eof())
+	{
+	  myFile.getline(buff,sz);
+	  string sbuf(buff);
+	  if( sbuf.length() > 0 )
+	    {
+	      stringstream ss(sbuf,stringstream::out);
+	      SObjectLabel data;
+	      ss  >> data.m_label 
+		  >> data.m_y_pos 
+		  >> data.m_x_pos 
+		  >> data.m_moment
+		  >> data.m_angle 
+		  >> data.m_roundness;
+	      retVal.push_back(data);
+	    }
+	}
+    }
+  if( NULL != buff )
+    delete [] buff;
+  return retVal;
+}
+/******************************************************************************************/ 

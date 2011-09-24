@@ -3,17 +3,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <string>
 
 using namespace std;
 
 int main(int argc, char *argv[])
 {
 
-  for(int i=0; i < argc; i++ )
-    {
-      cout << argv[i] << endl;
-    }
-  if(argc != 3 )
+  if(argc != 4 )
     {
       cout << "Argument error" << endl;
       return 1;
@@ -28,11 +25,19 @@ int main(int argc, char *argv[])
       cout << "Bad input image name:" << inname << endl;
       return retVal;
     }
+  std::string dbName(argv[2]);
+ 
 
   std::vector<SObjectLabel> data;
   data = get_morphology(inImg);
-
-  char * oname = argv[2];
+  retVal = write_database(dbName,data);
+  if( retVal )
+    {
+      cout << "Could not write output database" << endl;
+      return retVal;
+    }
+  
+  char * oname = argv[3];
   retVal = writeImage(inImg,oname);
   if( retVal )
     {
