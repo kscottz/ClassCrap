@@ -7,13 +7,28 @@
 #define COLOR_BLACK 0 
 //namespace vm
 //{
+struct SMomentData
+{
+  int M00;//area
+  int M10;//sum x*I(x,y)
+  int M01;//sum y*I(x,y)
+  int M11;//sum x*y*I(x,y)
+  int M20;//sum x^2*I(x,y)
+  int M02;//sum y^2*I(x,y)
+};
 
   struct SObjectLabel
   {
     int m_label;
     int m_x_pos;
     int m_y_pos;
-    float m_moment;
+    int m_area;
+    float m_mu00;
+    float m_mu10;
+    float m_mu01;
+    float m_mu11;
+    float m_mu20;
+    float m_mu02;
     float m_angle;
     float m_roundness;
   };

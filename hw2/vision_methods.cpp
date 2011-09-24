@@ -1,9 +1,11 @@
 #include "vision_methods.h"
 #include <vector>
 #include <set>
+#include <map>
 #include <algorithm>
 #include <iostream>
 #include "limits.h"
+#include <math.h>
 using namespace std;
 //using namespace vm;
 /******************************************************************************************/ 
@@ -211,6 +213,76 @@ set<int> set_union(set<int>& a, set<int>& b)
 vector<SObjectLabel> get_morphology(Image * img)
 {
   vector<SObjectLabel> retVal;
+  map<int,SMomentData> color_to_obj;
+   if(NULL == img )
+    return retVal;
+  int w = getNCols(img);
+  int h = getNRows(img);
+  int c = 0;
+  std::map<int,SMomentData>::iterator mIter;
+  for(int i=0;i<h;i++)// i = y
+    {
+      for(int j=0;j<w;j++) // j = x 
+	{
+	  c = getPixel(img,i,j);
+	  if( c > 0 )// if we're above the threshold 
+	    {
+	      mIter =  color_to_obj.find(c); 
+	      if( mIter != color_to_obj.end() )// we have a match
+		{
+		  color_to_obj[c].M00 += 1;
+		  color_to_obj[c].M10 += j;
+		  color_to_obj[c].M01 += i;
+		  color_to_obj[c].M11 += i*j;
+		  color_to_obj[c].M02 += i*i;
+		  color_to_obj[c].M20 += j*j;
+		}
+	      else // new color
+		{
+		  SMomentData data;
+		  data.M00 = 1;
+		  data.M10 = j;
+		  data.M01 = i;
+		  data.M11 = i*j;
+		  data.M02 = i*i;
+		  data.M20 = j*j;
+		  color_to_obj[c]=data;
+		}
+	    }
+	}
+    }
+  for( mIter = color_to_obj.begin();
+       mIter != color_to_obj.end();
+       ++mIter)
+    {
+      SObjectLabel newObj;
+      newObj.m_label = mIter->first;
+      newObj.m_area  = (mIter->second).M00;
+      newObj.m_x_pos = (mIter->second).M10/(mIter->second).M00;
+      newObj.m_y_pos = (mIter->second).M01/(mIter->second).M00;
+      newObj.m_mu00 = static_cast<float>((mIter->second).M00);
+      newObj.m_mu01 = 0.00;
+      newObj.m_mu10 = 0.00;
+      float fx =  ((float)(mIter->second).M10)/((float)(mIter->second).M00);
+      float fy =  ((float)(mIter->second).M01)/((float)(mIter->second).M00);
+      newObj.m_mu11 = static_cast<float>((mIter->second).M11)-(fx*((float)(mIter->second.M01)));
+      newObj.m_mu20 = static_cast<float>((mIter->second).M20)-(fx*((float)(mIter->second.M10)));
+      newObj.m_mu02 = static_cast<float>((mIter->second).M02)-(fy*((float)(mIter->second.M01)));
+      float m20p=newObj.m_mu20/newObj.m_mu00;// second order moments
+      float m02p=newObj.m_mu02/newObj.m_mu00;
+      float m11p=newObj.m_mu11/newObj.m_mu00;
+      newObj.m_angle = (atan((2.00*m11p)/(m20p-m02p))/2.00); // rotation angle
+      // first eigen value
+      float e1 = ((m20p+m02p)/2.0)+(sqrt((4.0*m11p*m11p)+((m20p-m02p)*(m20p-m02p)))/2.00);
+      // second eigen value
+      float e2 = ((m20p+m02p)/2.0)-(sqrt((4.0*m11p*m11p)+((m20p-m02p)*(m20p-m02p)))/2.00);
+      newObj.m_roundness = e1/e2;
+      setPixel(img,newObj.m_y_pos,newObj.m_x_pos,255);
+      cout << "color " << newObj.m_label << "(" << newObj.m_x_pos
+	   << ", " << newObj.m_y_pos <<") " << 180.00*(newObj.m_angle/(3.1415962)) << " " << newObj.m_roundness  << endl; 
+      retVal.push_back(newObj);
+    }
+  
   return retVal;
 }
 /******************************************************************************************/ 
