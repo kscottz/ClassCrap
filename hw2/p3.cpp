@@ -30,6 +30,11 @@ int main(int argc, char *argv[])
 
   std::vector<SObjectLabel> data;
   data = get_morphology(inImg);
+  std::vector<SObjectLabel>::iterator iter;
+  for( iter = data.begin(); iter != data.end(); ++iter)
+    {
+      apply_label(inImg,*iter);
+    }
   retVal = write_database(dbName,data);
   if( retVal )
     {

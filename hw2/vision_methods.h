@@ -3,6 +3,7 @@
 #include "vision_utilities.h"
 #include <vector>
 #include <set>
+#include <string>
 #define COLOR_WHITE 255
 #define COLOR_BLACK 0 
 
@@ -18,7 +19,8 @@ struct SMomentData
 
 struct SObjectLabel
 {
-  int m_label;
+  
+  std::string m_label;
   int m_x_pos;
   int m_y_pos;
   float m_angle;
@@ -43,4 +45,7 @@ std::vector<SObjectLabel> get_morphology(Image * img);
 std::vector<SObjectLabel> recognize(Image* img, std::vector<SObjectLabel>& db);
 int write_database(std::string fname, std::vector<SObjectLabel>& data);
 std::vector<SObjectLabel> read_database(std::string fname);
+int compare_objects(Image* img, std::vector<SObjectLabel>& db, std::vector<SObjectLabel>& found, float threshold);
+int apply_label(Image* img, SObjectLabel label);
+
 #endif //VISION_UTILITIES_H

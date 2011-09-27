@@ -7,9 +7,9 @@
 #include <fstream>
 #include <sstream>
 #include "limits.h"
+#include "float.h"
 #include <math.h>
 using namespace std;
-//using namespace vm;
 /******************************************************************************************/ 
 int threshold(Image* img, int thresh)
 {
@@ -258,7 +258,9 @@ vector<SObjectLabel> get_morphology(Image * img)
        ++mIter)
     {
       SObjectLabel newObj;
-      newObj.m_label = mIter->first;
+      char foo[32];
+      sprintf(foo,"%i",mIter->first);
+      newObj.m_label = string(foo);
       newObj.m_area  = (mIter->second).M00;
       newObj.m_x_pos = (mIter->second).M10/(mIter->second).M00;
       newObj.m_y_pos = (mIter->second).M01/(mIter->second).M00;
@@ -273,18 +275,32 @@ vector<SObjectLabel> get_morphology(Image * img)
       float m20p=newObj.m_mu20/newObj.m_mu00;// second order moments
       float m02p=newObj.m_mu02/newObj.m_mu00;
       float m11p=newObj.m_mu11/newObj.m_mu00;
-      newObj.m_angle = (180.00/PI)*(atan((2.00*m11p)/(m20p-m02p))/2.00); // rotation angle
+      //cout << m20p << " " << m02p << " " << m11p << endl;
+      float temp=((2.00*m11p)/(m20p-m02p));
       // first eigen value
       float e1 = ((m20p+m02p)/2.0)+(sqrt((4.0*m11p*m11p)+((m20p-m02p)*(m20p-m02p)))/2.00);
       // second eigen value
       float e2 = ((m20p+m02p)/2.0)-(sqrt((4.0*m11p*m11p)+((m20p-m02p)*(m20p-m02p)))/2.00);
       // roundness is the ratio of the eigen vectors 
       newObj.m_roundness = e1/e2;
-      // moment
+      // moment	  
+
+      //newObj.m_angle = (180.00/PI)*(atan((2.00*m11p)/(m20p-m02p))/2.00); // rotation angle
+	newObj.m_angle = (180.00/PI)*(atan(temp)/2.00);
+	cout << e1 << " " << e2 << endl;
+	if( e1 < e2 ) 
+	  newObj.m_angle += 90;
+      //if(temp > PI/2 || temp < -1.00*PI/2 )
+      //{
+      //  newObj.m_angle += 90;
+      //	}
+
+
       newObj.m_moment = (newObj.m_mu20+newObj.m_mu02)/(newObj.m_mu00*newObj.m_mu00);
       setPixel(img,newObj.m_y_pos,newObj.m_x_pos,255);
-      //cout << "color " << newObj.m_label << "(" << newObj.m_x_pos
-      //   << ", " << newObj.m_y_pos <<") " << (newObj.m_angle) << " " << newObj.m_roundness  << endl; 
+      //apply_label(img,newObj);
+      cout << "color " << newObj.m_label << "(" << newObj.m_x_pos
+         << ", " << newObj.m_y_pos <<") " << (newObj.m_angle) << " " << (180/PI)*temp << " "  << newObj.m_roundness  << endl; 
       retVal.push_back(newObj);
     }
   
@@ -333,13 +349,14 @@ vector<SObjectLabel> read_database(string fname)
   myFile.open(fname.c_str());
   if(myFile.is_open())
     {
+      int derp;
       while(!myFile.eof())
 	{
 	  myFile.getline(buff,sz);
 	  string sbuf(buff);
 	  if( sbuf.length() > 0 )
 	    {
-	      stringstream ss(sbuf,stringstream::out);
+	      stringstream ss(sbuf,stringstream::in);
 	      SObjectLabel data;
 	      ss  >> data.m_label 
 		  >> data.m_y_pos 
@@ -348,11 +365,68 @@ vector<SObjectLabel> read_database(string fname)
 		  >> data.m_angle 
 		  >> data.m_roundness;
 	      retVal.push_back(data);
+	      /* cout << data.m_label << " "
+		 << data.m_y_pos << " " 
+		 << data.m_x_pos << " " 
+		 << data.m_moment << " " 
+		 << data.m_angle << " " 
+		 << data.m_roundness << " " 
+		 << endl;*/ 
 	    }
 	}
     }
   if( NULL != buff )
     delete [] buff;
   return retVal;
+}
+/******************************************************************************************/ 
+int compare_objects(Image* img,vector<SObjectLabel>& db, vector<SObjectLabel>& found, float threshold)
+{
+  int retVal = 0;
+  vector<SObjectLabel>::iterator dbIter;
+  vector<SObjectLabel>::iterator objIter;
+  for(objIter = found.begin(); objIter != found.end(); ++objIter)
+    {
+      float best = FLT_MAX; 
+      string best_label = "NoMatch";
+      for(dbIter = db.begin(); dbIter != db.end(); ++dbIter )
+	{
+	  
+	  float diff = fabs(dbIter->m_moment-objIter->m_moment);
+
+	  if(diff < threshold )
+	    {
+	      cout << "diff between " << dbIter->m_label << " and " << objIter->m_label << " " << diff << endl; 
+	      best = diff;
+	      best_label = dbIter->m_label;
+	    }
+	}
+      if( best < threshold )
+	{
+	  retVal++;
+	  apply_label(img,*objIter);
+	}
+      objIter->m_label=best_label;
+    }
+  return retVal;
+}
+/******************************************************************************************/ 
+int apply_label(Image* img, SObjectLabel label)
+{
+  float theta = label.m_angle*(PI/180.00);
+  float length = 15.00;
+  int dx = static_cast<int>(length*cos(theta));
+  int dy = static_cast<int>(length*sin(theta));
+  int x = label.m_x_pos;
+  int y = label.m_y_pos;
+  line(img, y,x, y+dy, x+dx,255); 
+  for( int idx=x;idx<x+3;idx++)
+    {
+      for( int idy=y;idy<y+3;idy++)
+	{
+	  setPixel(img,idy,idx,255);
+	}
+    }
+  return(0);
 }
 /******************************************************************************************/ 
