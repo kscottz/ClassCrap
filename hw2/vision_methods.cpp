@@ -276,6 +276,13 @@ vector<SObjectLabel> get_morphology(Image * img)
       float m02p=newObj.m_mu02/newObj.m_mu00;
       float m11p=newObj.m_mu11/newObj.m_mu00;
       //cout << m20p << " " << m02p << " " << m11p << endl;
+      // this is the way derived from class notes
+      float a = (float)((mIter->second).M02+(newObj.m_y_pos*newObj.m_y_pos*(mIter->second).M00)-(2*newObj.m_y_pos*(mIter->second).M01));
+      float b = (float)(2*((mIter->second).M11-(newObj.m_y_pos*(mIter->second).M10)-(newObj.m_x_pos*(mIter->second).M01)+(newObj.m_x_pos*newObj.m_y_pos*(mIter->second).M00)));
+      float c = (float)(((mIter->second).M20)+(newObj.m_x_pos*newObj.m_x_pos*(mIter->second).M00)-(2*newObj.m_x_pos*(mIter->second).M10));
+      //cout << a << " " << b << " " << c << endl;
+      newObj.m_angle = atan2((double)b,(double)(a-c))/2;
+      newObj.m_angle = newObj.m_angle*(180/PI);
       float temp=((2.00*m11p)/(m20p-m02p));
       // first eigen value
       float e1 = ((m20p+m02p)/2.0)+(sqrt((4.0*m11p*m11p)+((m20p-m02p)*(m20p-m02p)))/2.00);
@@ -285,22 +292,17 @@ vector<SObjectLabel> get_morphology(Image * img)
       newObj.m_roundness = e1/e2;
       // moment	  
 
-      //newObj.m_angle = (180.00/PI)*(atan((2.00*m11p)/(m20p-m02p))/2.00); // rotation angle
-	newObj.m_angle = (180.00/PI)*(atan(temp)/2.00);
-	cout << e1 << " " << e2 << endl;
-	if( e1 < e2 ) 
-	  newObj.m_angle += 90;
-      //if(temp > PI/2 || temp < -1.00*PI/2 )
-      //{
-      //  newObj.m_angle += 90;
-      //	}
+      // THis is the wikipedia method using atan2
+      //newObj.m_angle = (180.00/PI)*(atan2((2.00*m11p),(m20p-m02p))/2.00); // rotation angle
+      //newObj.m_angle = (180.00/PI)*(atan(temp)/2.00);
+
 
 
       newObj.m_moment = (newObj.m_mu20+newObj.m_mu02)/(newObj.m_mu00*newObj.m_mu00);
       setPixel(img,newObj.m_y_pos,newObj.m_x_pos,255);
       //apply_label(img,newObj);
-      cout << "color " << newObj.m_label << "(" << newObj.m_x_pos
-         << ", " << newObj.m_y_pos <<") " << (newObj.m_angle) << " " << (180/PI)*temp << " "  << newObj.m_roundness  << endl; 
+      //cout << "color " << newObj.m_label << "(" << newObj.m_x_pos
+      //   << ", " << newObj.m_y_pos <<") " << (newObj.m_angle) << " " << (180/PI)*temp << " "  << newObj.m_roundness  << endl; 
       retVal.push_back(newObj);
     }
   
