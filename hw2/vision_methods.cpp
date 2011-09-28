@@ -102,22 +102,7 @@ int connect_components(Image* img)
 	    }
 	}
     }
-  /*
-  vector< set<int> >::iterator iter;
-  set<int>::iterator target;
-  int idx = 0;
-  cout << "DERP" << labels.size() << endl;
-  for(iter = labels.begin(); iter != labels.end();++iter)
-    {
-      cout << idx << " : ";
-      for(target = iter->begin();target!=iter->end();++target)
-	{
-	  cout << *target << " ";
-	}
-      cout << endl;
-      idx++;
-    }
-  */
+
   vector< set<int> >::iterator outer;
   vector< set<int> >::iterator inner; 
   bool converge = false;
@@ -140,19 +125,6 @@ int connect_components(Image* img)
 	    }
 	}
     }
-  /*
-  int idx = 0;
-  cout << "DERP" << labels.size() << endl;
-  for(iter = labels.begin(); iter != labels.end();++iter)
-    {
-      cout << idx << " : ";
-      for(target = iter->begin();target!=iter->end();++target)
-	{
-	  cout << *target << " ";
-	}
-      cout << endl;
-      idx++;
-      }*/
   set_label_colors(labels,img,cnt);
   return retVal;
 }
@@ -369,13 +341,6 @@ vector<SObjectLabel> read_database(string fname)
 		  >> data.m_roundness
 		  >> data.m_area;
 	      retVal.push_back(data);
-	      /* cout << data.m_label << " "
-		 << data.m_y_pos << " " 
-		 << data.m_x_pos << " " 
-		 << data.m_moment << " " 
-		 << data.m_angle << " " 
-		 << data.m_roundness << " " 
-		 << endl;*/ 
 	    }
 	}
     }
@@ -395,19 +360,13 @@ int compare_objects(Image* img,vector<SObjectLabel>& db, vector<SObjectLabel>& f
       string best_label = "NoMatch";
       for(dbIter = db.begin(); dbIter != db.end(); ++dbIter )
 	{
-	  /*cout << objIter->m_moment << " "
-	       << objIter->m_area << " " 
-	       << dbIter->m_area << " " 
-	       << objIter->m_roundness << " " << endl;
-	  */
+
 	  float mdiff = fabs(dbIter->m_moment-objIter->m_moment)/dbIter->m_moment;
-	  //diff += fabs((float)1.00+(dbIter->m_area-objIter->m_area))/((float)dbIter->m_area);
 	  float rdiff = fabs(dbIter->m_roundness-objIter->m_roundness)/dbIter->m_roundness;
 	  float diff = (rdiff+mdiff)/2.00;
-	  //cout << diff << endl;
+	  // take the average difference between the roundness and moment
 	  if(diff < threshold )
 	    {
-	      // cout << "diff between " << dbIter->m_label << " and " << objIter->m_label << " " << diff << endl; 
 	      best = diff;
 	      best_label = dbIter->m_label;
 	    }
