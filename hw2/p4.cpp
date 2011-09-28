@@ -36,10 +36,13 @@ int main(int argc, char *argv[])
   
   std::vector<SObjectLabel> data;
   data = get_morphology(inImg);
-  float threshold=0.02;
+  float threshold=0.1;
   int count  = compare_objects(inImg,db,data,threshold);
   cout << "Found " << count << " matching objects" << endl; 
-
+  // p22 and data1 - 2 matches
+  // p23 and data1 - 2 matches
+  // p21 and data3 - 2 matches
+  // p22 and data3 - 2 matches
   char * oname = argv[3];
   retVal = writeImage(inImg,oname);
   if( retVal )

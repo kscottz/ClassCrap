@@ -289,7 +289,7 @@ vector<SObjectLabel> get_morphology(Image * img)
       // second eigen value
       float e2 = ((m20p+m02p)/2.0)-(sqrt((4.0*m11p*m11p)+((m20p-m02p)*(m20p-m02p)))/2.00);
       // roundness is the ratio of the eigen vectors 
-      newObj.m_roundness = e1/e2;
+      newObj.m_roundness = sqrt(e2)/sqrt(e1);
       // moment	  
 
       // THis is the wikipedia method using atan2
@@ -330,7 +330,8 @@ int write_database(string fname, vector<SObjectLabel>& data)
 		 << iter->m_x_pos << " " 
 		 << iter->m_moment << " " 
 		 << iter->m_angle << " " 
-		 << iter->m_roundness << " " 
+		 << iter->m_roundness << " "
+	         << iter->m_area << " " 
 		 << endl; 
 	}
     }
@@ -365,7 +366,8 @@ vector<SObjectLabel> read_database(string fname)
 		  >> data.m_x_pos 
 		  >> data.m_moment
 		  >> data.m_angle 
-		  >> data.m_roundness;
+		  >> data.m_roundness
+		  >> data.m_area;
 	      retVal.push_back(data);
 	      /* cout << data.m_label << " "
 		 << data.m_y_pos << " " 
@@ -393,12 +395,19 @@ int compare_objects(Image* img,vector<SObjectLabel>& db, vector<SObjectLabel>& f
       string best_label = "NoMatch";
       for(dbIter = db.begin(); dbIter != db.end(); ++dbIter )
 	{
-	  
-	  float diff = fabs(dbIter->m_moment-objIter->m_moment);
-
+	  /*cout << objIter->m_moment << " "
+	       << objIter->m_area << " " 
+	       << dbIter->m_area << " " 
+	       << objIter->m_roundness << " " << endl;
+	  */
+	  float mdiff = fabs(dbIter->m_moment-objIter->m_moment)/dbIter->m_moment;
+	  //diff += fabs((float)1.00+(dbIter->m_area-objIter->m_area))/((float)dbIter->m_area);
+	  float rdiff = fabs(dbIter->m_roundness-objIter->m_roundness)/dbIter->m_roundness;
+	  float diff = (rdiff+mdiff)/2.00;
+	  //cout << diff << endl;
 	  if(diff < threshold )
 	    {
-	      cout << "diff between " << dbIter->m_label << " and " << objIter->m_label << " " << diff << endl; 
+	      // cout << "diff between " << dbIter->m_label << " and " << objIter->m_label << " " << diff << endl; 
 	      best = diff;
 	      best_label = dbIter->m_label;
 	    }
