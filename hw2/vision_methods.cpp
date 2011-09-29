@@ -11,6 +11,7 @@
 #include <math.h>
 using namespace std;
 /******************************************************************************************/ 
+// do the threshold
 int threshold(Image* img, int thresh)
 {
   int retVal = 0;
@@ -34,6 +35,7 @@ int threshold(Image* img, int thresh)
   return retVal;
 }
 /******************************************************************************************/ 
+// build the blob coloring in place - return number of blobs
 int connect_components(Image* img)
 {
   int retVal = 0;
@@ -129,6 +131,7 @@ int connect_components(Image* img)
   return retVal;
 }
 /******************************************************************************************/ 
+// this is second pass to color the blobs
 void set_label_colors(vector< set<int> >& labels, Image* img, int init_colors)
 {
   int final_colors = (int)labels.size();
@@ -164,6 +167,7 @@ void set_label_colors(vector< set<int> >& labels, Image* img, int init_colors)
 
 }
 /******************************************************************************************/ 
+// this is set intersection for the blob color algorithm
 bool set_intersection(set<int>& a, set<int>& b)
 {
   bool retVal = false;
@@ -177,6 +181,7 @@ bool set_intersection(set<int>& a, set<int>& b)
   return retVal;
 }
 /******************************************************************************************/ 
+// this is set union for the blob coloring algo
 set<int> set_union(set<int>& a, set<int>& b)
 {
   set<int> retVal = a;
@@ -184,6 +189,7 @@ set<int> set_union(set<int>& a, set<int>& b)
   return retVal;
 }
 /******************************************************************************************/ 
+// Calculate position, area, moments etc and return a "database"
 vector<SObjectLabel> get_morphology(Image * img)
 {
   vector<SObjectLabel> retVal;
@@ -213,6 +219,7 @@ vector<SObjectLabel> get_morphology(Image * img)
 		}
 	      else // new color
 		{
+		  // caclulate the raw moments
 		  SMomentData data;
 		  data.M00 = 1;
 		  data.M10 = j;
@@ -225,6 +232,7 @@ vector<SObjectLabel> get_morphology(Image * img)
 	    }
 	}
     }
+  // do the calculation
   for( mIter = color_to_obj.begin();
        mIter != color_to_obj.end();
        ++mIter)
@@ -241,37 +249,39 @@ vector<SObjectLabel> get_morphology(Image * img)
       newObj.m_mu10 = 0.00;
       float fx =  ((float)(mIter->second).M10)/((float)(mIter->second).M00);
       float fy =  ((float)(mIter->second).M01)/((float)(mIter->second).M00);
+      // central moments
       newObj.m_mu11 = static_cast<float>((mIter->second).M11)-(fx*((float)(mIter->second.M01)));
       newObj.m_mu20 = static_cast<float>((mIter->second).M20)-(fx*((float)(mIter->second.M10)));
       newObj.m_mu02 = static_cast<float>((mIter->second).M02)-(fy*((float)(mIter->second.M01)));
+      
       float m20p=newObj.m_mu20/newObj.m_mu00;// second order moments
       float m02p=newObj.m_mu02/newObj.m_mu00;
       float m11p=newObj.m_mu11/newObj.m_mu00;
       //cout << m20p << " " << m02p << " " << m11p << endl;
-      // this is the way derived from class notes
+
+      // LOOK HERE - THIS IS THE WAY FOR CALCULATING ANGLE IN CLASS
+      // IT KINDA SUCKS
       float a = (float)((mIter->second).M02+(newObj.m_y_pos*newObj.m_y_pos*(mIter->second).M00)-(2*newObj.m_y_pos*(mIter->second).M01));
       float b = (float)(2*((mIter->second).M11-(newObj.m_y_pos*(mIter->second).M10)-(newObj.m_x_pos*(mIter->second).M01)+(newObj.m_x_pos*newObj.m_y_pos*(mIter->second).M00)));
       float c = (float)(((mIter->second).M20)+(newObj.m_x_pos*newObj.m_x_pos*(mIter->second).M00)-(2*newObj.m_x_pos*(mIter->second).M10));
       //cout << a << " " << b << " " << c << endl;
       newObj.m_angle = atan2((double)b,(double)(a-c))/2;
       newObj.m_angle = newObj.m_angle*(180/PI);
-      float temp=((2.00*m11p)/(m20p-m02p));
+
+       // THis is the wikipedia method for calculating angle using atan2
+      newObj.m_angle = (180.00/PI)*(atan2((2.00*m11p),(m20p-m02p))/2.00); // rotation angle
+      //float temp=((2.00*m11p)/(m20p-m02p));
+      //newObj.m_angle = (180.00/PI)*(atan(temp)/2.00);
+
       // first eigen value
       float e1 = ((m20p+m02p)/2.0)+(sqrt((4.0*m11p*m11p)+((m20p-m02p)*(m20p-m02p)))/2.00);
       // second eigen value
       float e2 = ((m20p+m02p)/2.0)-(sqrt((4.0*m11p*m11p)+((m20p-m02p)*(m20p-m02p)))/2.00);
       // roundness is the ratio of the eigen vectors 
       newObj.m_roundness = sqrt(e2)/sqrt(e1);
-      // moment	  
-
-      // THis is the wikipedia method using atan2
-      //newObj.m_angle = (180.00/PI)*(atan2((2.00*m11p),(m20p-m02p))/2.00); // rotation angle
-      //newObj.m_angle = (180.00/PI)*(atan(temp)/2.00);
-
-
-
+      // hu moment	  
       newObj.m_moment = (newObj.m_mu20+newObj.m_mu02)/(newObj.m_mu00*newObj.m_mu00);
-      setPixel(img,newObj.m_y_pos,newObj.m_x_pos,255);
+      //setPixel(img,newObj.m_y_pos,newObj.m_x_pos,255);
       //apply_label(img,newObj);
       //cout << "color " << newObj.m_label << "(" << newObj.m_x_pos
       //   << ", " << newObj.m_y_pos <<") " << (newObj.m_angle) << " " << (180/PI)*temp << " "  << newObj.m_roundness  << endl; 
@@ -281,12 +291,7 @@ vector<SObjectLabel> get_morphology(Image * img)
   return retVal;
 }
 /******************************************************************************************/ 
-vector<SObjectLabel> recognize(Image* img, std::vector<SObjectLabel>& db)
-{
-  vector<SObjectLabel> retVal;
-  return retVal;
-}
-/******************************************************************************************/ 
+// read a db file
 int write_database(string fname, vector<SObjectLabel>& data)
 {
   int retVal = 0;
@@ -349,6 +354,7 @@ vector<SObjectLabel> read_database(string fname)
   return retVal;
 }
 /******************************************************************************************/ 
+// compare a db and objects 
 int compare_objects(Image* img,vector<SObjectLabel>& db, vector<SObjectLabel>& found, float threshold)
 {
   int retVal = 0;
@@ -381,6 +387,7 @@ int compare_objects(Image* img,vector<SObjectLabel>& db, vector<SObjectLabel>& f
   return retVal;
 }
 /******************************************************************************************/ 
+// draw and object's centroid and angle 
 int apply_label(Image* img, SObjectLabel label)
 {
   float theta = label.m_angle*(PI/180.00);

@@ -84,7 +84,7 @@ vision_utilities.o: vision_utilities.c vision_utilities.h
 # NOTE 2: Make sure to post the generated .tar.gz file to the Homework 2 Dropbox 
 #         on CourseWorks
  submit: clean
-	tar -czvf $(UNI)-hw2.tar.gz $(P1SRC) $(P2SRC) $(P3SRC) $(P4SRC) $(UTILS) $(UTILSH) Makefile README
+	tar -czvf $(UNI)-hw2.tar.gz $(P1SRC) $(P2SRC) $(P3SRC) $(P4SRC) $(UTILS) $(UTILSH) Images.zip Makefile README.txt notes.png MyWay.png
 
 # 'make extract' extracts all files into a new folder named UNI
 extract: $(UNI).tar.gz
