@@ -2,7 +2,7 @@
 # Comments begin with a # (like this line)
 
 # Your UNI
-UNI = abc1234
+UNI = kas2221	
 
 # VARIOUS VARIABLES (you will need to change some of these)
 # The compiler. If you're writing code using c++, change gcc to g++
@@ -13,6 +13,10 @@ CFLAGS = -g
 
 # Libraries to link against. You should only need to link against the math library (-lm).
 LFLAGS = -lm
+
+#my methods
+METHODS = vision_methods.cpp
+METHODSH = vision_methods.h
 
 # The utilities file. Leave this as is.
 UTILS = vision_utilities.c
@@ -43,7 +47,7 @@ HOUGH_COMPLEX_THRESHOLD = 0
 # generated from running the 'test' target. If you generate any other files,
 # make sure this is correct. This list of files is deleted when 'make clean'
 # or 'make submit' are run (to prevent submitting all these files).
-OUTPUTS_TO_CLEAN = p11.pgm p12.pgm p13.pgm p21.pgm p22.pgm p23.pgm h21.pgm h22.pgm h23.pgm p31.pgm p32.pgm p33.pgm p41.pgm p42.pgm p43.pgm
+OUTPUTS_TO_CLEAN = p11.pgm p12.pgm p13.pgm p21.pgm p22.pgm p23.pgm h21.pgm h22.pgm h23.pgm p31.pgm p32.pgm p33.pgm p41.pgm p42.pgm p43.pgm *.c~ *.cpp~ *.h~ 
 
 # THE BUILD RULES (you shouldn't need to edit any of these)
 # 'make test' builds all 4 programs and then tests them.
@@ -79,19 +83,19 @@ all: p1 p2 p3 p4
 
 # 'make p1' builds p1 only
 p1: $(P1SRC) $(UTILS)
-	$(CC) $(CFLAGS) -o $@ $(P1SRC) $(UTILS) $(LFLAGS)
+	$(CC) $(CFLAGS) -o $@ $(P1SRC) $(UTILS) $(METHODS) $(LFLAGS)
 
 # 'make p2' builds p2 only
 p2: $(P2SRC) $(UTILS)
-	$(CC) $(CFLAGS) -o $@ $(P2SRC) $(UTILS) $(LFLAGS)
+	$(CC) $(CFLAGS) -o $@ $(P2SRC) $(UTILS) $(METHODS) $(LFLAGS)
 
 # 'make p3' builds p3 only
 p3: $(P3SRC) $(UTILS)
-	$(CC) $(CFLAGS) -o $@ $(P3SRC) $(UTILS) $(LFLAGS)
+	$(CC) $(CFLAGS) -o $@ $(P3SRC) $(UTILS) $(METHODS) $(LFLAGS)
 
 # 'make p4' builds p4 only
 p4: $(P4SRC) $(UTILS)
-	$(CC) $(CFLAGS) -o $@ $(P4SRC) $(UTILS) $(LFLAGS)
+	$(CC) $(CFLAGS) -o $@ $(P4SRC) $(UTILS) $(METHODS) $(LFLAGS)
 
 # the rule for building the vision utilities
 vision_utilities.o: vision_utilities.c vision_utilities.h
