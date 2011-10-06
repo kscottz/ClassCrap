@@ -52,4 +52,6 @@ std::vector<SObjectLabel> read_database(std::string fname);
 int compare_objects(Image* img, std::vector<SObjectLabel>& db, std::vector<SObjectLabel>& found, float threshold);
 int apply_label(Image* img, SObjectLabel label);
 Image* sobel(Image* img);
+Image* convolve(Image* img, int** filter, int sz);
+Image* clone(Image* img);
 #endif //VISION_UTILITIES_H

@@ -56,27 +56,27 @@ test: test1 test2 test3 test4
 	
 # 'make test1' tests only program 1
 test1: p1
-	p1 hough_simple_1.pgm p11.pgm
-	p1 hough_simple_2.pgm p12.pgm
-	p1 hough_complex_1.pgm p13.pgm
+	./p1 hough_simple_1.pgm p11.pgm
+	./p1 hough_simple_2.pgm p12.pgm
+	./p1 hough_complex_1.pgm p13.pgm
 
 # 'make test2' tests only program 2
 test2: p2
-	p2 p11.pgm $(EDGE_THRESHOLD) p21.pgm h21.pgm
-	p2 p12.pgm $(EDGE_THRESHOLD) p22.pgm h22.pgm
-	p2 p13.pgm $(EDGE_THRESHOLD) p23.pgm h23.pgm
+	./p2 p11.pgm $(EDGE_THRESHOLD) p21.pgm h21.pgm
+	./p2 p12.pgm $(EDGE_THRESHOLD) p22.pgm h22.pgm
+	./p2 p13.pgm $(EDGE_THRESHOLD) p23.pgm h23.pgm
 
 # 'make test3' tests only program 3
 test3: p3
-	p3 hough_simple_1.pgm h21.pgm $(HOUGH_SIMPLE_1_THRESHOLD) p31.pgm
-	p3 hough_simple_2.pgm h22.pgm $(HOUGH_SIMPLE_2_THRESHOLD) p32.pgm
-	p3 hough_complex_1.pgm h23.pgm $(HOUGH_COMPLEX_THRESHOLD) p33.pgm
+	./p3 hough_simple_1.pgm h21.pgm $(HOUGH_SIMPLE_1_THRESHOLD) p31.pgm
+	./p3 hough_simple_2.pgm h22.pgm $(HOUGH_SIMPLE_2_THRESHOLD) p32.pgm
+	./p3 hough_complex_1.pgm h23.pgm $(HOUGH_COMPLEX_THRESHOLD) p33.pgm
 
 # 'make test4' tests only program 4
 test4: p4
-	p4 hough_simple_1.pgm h21.pgm p21.pgm $(HOUGH_SIMPLE_THRESHOLD) p41.pgm
-	p4 hough_simple_2.pgm h22.pgm p22.pgm $(HOUGH_SIMPLE_THRESHOLD) p42.pgm
-	p4 hough_complex_1.pgm h23.pgm p23.pgm $(HOUGH_COMPLEX_THRESHOLD) p43.pgm
+	./p4 hough_simple_1.pgm h21.pgm p21.pgm $(HOUGH_SIMPLE_THRESHOLD) p41.pgm
+	./p4 hough_simple_2.pgm h22.pgm p22.pgm $(HOUGH_SIMPLE_THRESHOLD) p42.pgm
+	./p4 hough_complex_1.pgm h23.pgm p23.pgm $(HOUGH_COMPLEX_THRESHOLD) p43.pgm
 
 # 'make all' builds all 4 programs (but doesn't run them)
 all: p1 p2 p3 p4
@@ -99,6 +99,9 @@ p4: $(P4SRC) $(UTILS)
 
 # the rule for building the vision utilities
 vision_utilities.o: vision_utilities.c vision_utilities.h
+	$(CC) -c -Wall -pedantic -o $@ vision_utilities.c
+
+vision_methods.o: vision_methods.cpp vision_methods.h
 	$(CC) -c -Wall -pedantic -o $@ vision_utilities.c
 
 # 'make submit' creates a tar of all files in the directory

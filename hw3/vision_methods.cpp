@@ -407,3 +407,77 @@ int apply_label(Image* img, SObjectLabel label)
   return(0);
 }
 /******************************************************************************************/ 
+Image* sobel(Image* img)
+{
+  int sz = 3;
+  int ** filter = new int*[sz];
+  for( int i=0; i < sz; i++)
+    {
+      filter[i] = new int[sz];
+    }
+  // row=y col=x
+  filter[0][0] = 1;
+  filter[0][1] = 4;
+  filter[0][2] = 1;
+  filter[1][0] = 4;
+  filter[1][1] = -20;
+  filter[1][2] = 4;
+  filter[2][0] = 1;
+  filter[2][1] = 4;
+  filter[2][2] = 1; 
+
+  return convolve(img, filter, sz); 
+}
+/******************************************************************************************/ 
+Image* convolve(Image* img, int** filter, int sz)
+{
+  if(NULL == img )
+    return NULL;
+  Image * retVal = clone(img);
+  int w = getNCols(img);
+  int h = getNRows(img);
+  int accumulator = 0;
+  int c=0,m=0;
+  int step = sz/2; // our padding for the image 
+  for(int i=step;i<h-step;i++)//y
+    {
+      for(int j=step;j<w-step;j++)//x
+	{
+	  accumulator = 0;
+	  for(int p=0; p < sz; p++)
+	    {
+	      for( int q=0; q < sz; q++)
+		{
+		  m = filter[p][q];// get the filter value
+		  if( m != 0 )// save ourself a few steps for sobel
+		    {
+		      c = getPixel(img,i+(p-step),j+(q-step));// get the area around the target pixel 
+		      accumulator += c*m;
+		    }
+		}
+	    }
+	  accumulator = CLAMP(abs(accumulator/6),0,255);
+	  setPixel(retVal,i,j,accumulator);
+	}
+    }
+
+  return retVal;
+}
+/******************************************************************************************/ 
+Image* clone(Image* img)
+{
+  int w = getNCols(img);
+  int h = getNRows(img);
+  Image * retVal = new Image();
+  setSize(retVal,h,w);
+  setColors(retVal,255);
+  for(int i=0;i<h;i++)
+    {
+      for(int j=0;j<w;j++)
+	{
+	  setPixel(retVal,i,j,COLOR_BLACK);
+	}
+    }
+  return(retVal);
+}
+/******************************************************************************************/ 

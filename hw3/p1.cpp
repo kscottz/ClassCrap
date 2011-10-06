@@ -7,10 +7,11 @@
 
 using namespace std;
 
+
 int main(int argc, char *argv[])
 {
 
-  if(argc != 4 )
+  if(argc != 3 )
     {
       cout << "Argument error" << endl;
       return 1;
@@ -25,29 +26,14 @@ int main(int argc, char *argv[])
       cout << "Bad input image name:" << inname << endl;
       return retVal;
     }
-  std::string dbName(argv[2]);
- 
-
-  std::vector<SObjectLabel> data;
-  data = get_morphology(inImg);
-  std::vector<SObjectLabel>::iterator iter;
-  for( iter = data.begin(); iter != data.end(); ++iter)
-    {
-      apply_label(inImg,*iter);
-    }
-  retVal = write_database(dbName,data);
-  if( retVal )
-    {
-      cout << "Could not write output database" << endl;
-      return retVal;
-    }
-  
-  char * oname = argv[3];
-  retVal = writeImage(inImg,oname);
+  char * oname = argv[2];
+  Image* output = sobel(inImg);
+  retVal = writeImage(output,oname);
   if( retVal )
     {
       cout << "Error saving file: " << oname << endl;
       return retVal;
     }
+  // should clean up
   return 0;
 }
