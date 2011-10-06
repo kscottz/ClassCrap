@@ -51,5 +51,5 @@ int write_database(std::string fname, std::vector<SObjectLabel>& data);
 std::vector<SObjectLabel> read_database(std::string fname);
 int compare_objects(Image* img, std::vector<SObjectLabel>& db, std::vector<SObjectLabel>& found, float threshold);
 int apply_label(Image* img, SObjectLabel label);
-
+Image* sobel(Image* img);
 #endif //VISION_UTILITIES_H
