@@ -31,7 +31,7 @@ P4SRC = p4.cpp
 
 # Edge Threshold for getting strong edges on all images. 
 # Change this.
-EDGE_THRESHOLD = 0
+EDGE_THRESHOLD = 128
 
 # Hough Threshold for getting consistent lines on the 
 # hough_simple images. Change this.
@@ -62,7 +62,7 @@ test1: p1
 
 # 'make test2' tests only program 2
 test2: p2
-	./p2 p11.pgm $(EDGE_THRESHOLD) p21.pgm h21.pgm
+	./p2 input.pgm $(EDGE_THRESHOLD) p21.pgm h21.pgm
 	./p2 p12.pgm $(EDGE_THRESHOLD) p22.pgm h22.pgm
 	./p2 p13.pgm $(EDGE_THRESHOLD) p23.pgm h23.pgm
 

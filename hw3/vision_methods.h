@@ -54,4 +54,6 @@ int apply_label(Image* img, SObjectLabel label);
 Image* sobel(Image* img);
 Image* convolve(Image* img, int** filter, int sz);
 Image* clone(Image* img);
+Image* do_hough_line(Image * img); 
+int draw_hough(Image *im, int x, int y);
 #endif //VISION_UTILITIES_H

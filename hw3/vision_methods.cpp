@@ -456,7 +456,7 @@ Image* convolve(Image* img, int** filter, int sz)
 		    }
 		}
 	    }
-	  accumulator = CLAMP(abs(accumulator/6),0,255);
+	  accumulator = CLAMP(abs(accumulator),0,255);
 	  setPixel(retVal,i,j,accumulator);
 	}
     }
@@ -479,5 +479,70 @@ Image* clone(Image* img)
 	}
     }
   return(retVal);
+}
+/******************************************************************************************/ 
+Image* do_hough_line(Image * img)
+{
+  int w = getNCols(img);
+  int h = getNRows(img);
+  int thetaRes = 181;
+  int rhoRes = sqrt((w*w)+(h*h));
+  Image* retVal = new Image();
+  setSize(retVal,thetaRes/*w*/,rhoRes /*h*/);
+  setColors(retVal,255);
+  // setup the accumulator
+  for(int i=0;i<rhoRes;i++)
+    {
+      for(int j=0;j<thetaRes;j++)
+	{
+	  setPixel(retVal,i,j,COLOR_BLACK);
+	}
+    }
+  // draw the accumulator
+  int c = 0;
+  for(int i=0;i<h;i++)//h
+    {
+      //cout << "tick " << i << endl;
+      for(int j=0;j<w;j++)
+	{
+	  c=getPixel(img,i,j);
+	  if( c > 0 )
+	    {
+	      draw_hough(retVal,i,j);
+	    }
+	}
+    }
+
+  return retVal; 
+}
+/******************************************************************************************/ 
+int draw_hough(Image *im, int x, int y)
+{
+  int thetas = getNCols(im);//THETA
+  int rhos = getNRows(im);//RHO
+  //setSize(retVal,thetaRes/*w*/,rhoRes /*h*/);
+  setColors(im,255);
+  float xf = (float)x;
+  float yf = (float)y;
+  int c = 0;
+  int rw = rhos/2;
+  int max = 0;
+  for(int i=0; i< thetas; i++)
+    {
+      float theta = (((float)i)/((float)thetas))*PI;
+      float rho = (yf*cos(theta))+(xf*sin(rho)); // shift it to positve space
+ 
+      int t = i;
+      int r = (int)rho+rw;
+      //cout << "(" << r << " , " << t << ") " << rhos<< " " << thetas << endl;
+      if(r < rhos && r >  0 )// get rid of clamp effect in setPixel
+	{
+	  c=getPixel(im,r,t);
+	  if( c > max )
+	    max = c;
+	  setPixel(im,r,t,c+1);
+	}
+    }
+  //cout << "MAX: " << max << endl; 
 }
 /******************************************************************************************/ 
