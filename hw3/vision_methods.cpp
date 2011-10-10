@@ -485,15 +485,15 @@ Image* do_hough_line(Image * img)
 {
   int w = getNCols(img);
   int h = getNRows(img);
-  int thetaRes = 181;
+  int thetaRes = 360;
   int rhoRes = sqrt((w*w)+(h*h));
   Image* retVal = new Image();
-  setSize(retVal,thetaRes/*w*/,rhoRes /*h*/);
+  setSize(retVal,rhoRes/*w*/,thetaRes /*h*/);
   setColors(retVal,255);
   // setup the accumulator
-  for(int i=0;i<rhoRes;i++)
+  for(int i=0;i<thetaRes;i++)
     {
-      for(int j=0;j<thetaRes;j++)
+      for(int j=0;j<rhoRes;j++)
 	{
 	  setPixel(retVal,i,j,COLOR_BLACK);
 	}
@@ -520,8 +520,6 @@ int draw_hough(Image *im, int x, int y)
 {
   int thetas = getNCols(im);//THETA
   int rhos = getNRows(im);//RHO
-  //setSize(retVal,thetaRes/*w*/,rhoRes /*h*/);
-  setColors(im,255);
   float xf = (float)x;
   float yf = (float)y;
   int c = 0;
@@ -529,11 +527,11 @@ int draw_hough(Image *im, int x, int y)
   int max = 0;
   for(int i=0; i< thetas; i++)
     {
-      float theta = (((float)i)/((float)thetas))*PI;
-      float rho = (yf*cos(theta))+(xf*sin(rho)); // shift it to positve space
+      float theta = ((((float)i)/((float)thetas))*PI)-(PI/2.00);
+      float rho = (yf*cos(theta))-(xf*sin(theta)); // shift it to positve space
  
       int t = i;
-      int r = (int)rho+rw;
+      int r = (int)rho;
       //cout << "(" << r << " , " << t << ") " << rhos<< " " << thetas << endl;
       if(r < rhos && r >  0 )// get rid of clamp effect in setPixel
 	{
@@ -542,7 +540,40 @@ int draw_hough(Image *im, int x, int y)
 	    max = c;
 	  setPixel(im,r,t,c+1);
 	}
-    }
+      
+  }
   //cout << "MAX: " << max << endl; 
 }
 /******************************************************************************************/ 
+int hough_reconstruct(Image* accumulator, Image* output)
+{
+  int retVal(0);
+  int w = getNCols(accumulator);//theta
+  int h = getNRows(accumulator);//rho
+
+  int imgw = getNCols(output);
+  int imgh = getNRows(output);
+
+  int c = 0;
+  for(int rho=0;rho<h;rho++)
+    {
+      for(int theta=0;theta<w;theta++)
+	{
+	  c=getPixel(accumulator,rho,theta);
+	  if( c > 0 )//draw line 
+	    {
+	      float rhof = (float)(rho);
+	      float thetaf = ((((float)theta)/((float)w))*PI)-(PI/2);
+	      //cout << "(" << rhof << "," << thetaf << ")" << "(" << w << "," << h << ") "<< endl;
+	      float m = tan(thetaf);
+	      float b = rhof/cos(thetaf);
+	      float y0 = (m*0.00)+b;
+	      float y1 = (m*imgw)+b;
+	      float x0 = -1.00*rhof/sin(thetaf);
+	      float x1  =((((float)h)*cos(thetaf))-rhof)/sin(thetaf);
+	      line(output,0,(int)y0,imgw,(int)y1,255);
+	    }
+	}
+    }
+  return retVal; 
+}

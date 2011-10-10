@@ -56,4 +56,5 @@ Image* convolve(Image* img, int** filter, int sz);
 Image* clone(Image* img);
 Image* do_hough_line(Image * img); 
 int draw_hough(Image *im, int x, int y);
+int hough_reconstruct(Image* accumulator, Image* output);
 #endif //VISION_UTILITIES_H

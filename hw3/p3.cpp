@@ -6,48 +6,28 @@
 #include <string>
 
 using namespace std;
-
 int main(int argc, char *argv[])
 {
 
-  if(argc != 4 )
+  if(argc != 5 )
     {
       cout << "Argument error" << endl;
       return 1;
     }
   char * inname = argv[1];
-
+  char * accName = argv[2];
+  int thresh  = atoi(argv[3]); 
+  char * outimg = argv[4];
   Image * inImg = new Image();
   int retVal = readImage(inImg,inname);
+  Image * accumulator = new Image();
+  retVal = readImage(accumulator,accName);
+  threshold(accumulator,thresh);
+  hough_reconstruct(accumulator,inImg);
   
-  if( retVal || inImg == NULL )
-    {
-      cout << "Bad input image name:" << inname << endl;
-      return retVal;
-    }
-  std::string dbName(argv[2]);
- 
+  retVal = writeImage(inImg,outimg);
 
-  std::vector<SObjectLabel> data;
-  data = get_morphology(inImg);
-  std::vector<SObjectLabel>::iterator iter;
-  for( iter = data.begin(); iter != data.end(); ++iter)
-    {
-      apply_label(inImg,*iter);
-    }
-  retVal = write_database(dbName,data);
-  if( retVal )
-    {
-      cout << "Could not write output database" << endl;
-      return retVal;
-    }
-  
-  char * oname = argv[3];
-  retVal = writeImage(inImg,oname);
-  if( retVal )
-    {
-      cout << "Error saving file: " << oname << endl;
-      return retVal;
-    }
   return 0;
 }
+
+

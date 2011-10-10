@@ -31,16 +31,16 @@ P4SRC = p4.cpp
 
 # Edge Threshold for getting strong edges on all images. 
 # Change this.
-EDGE_THRESHOLD = 128
+EDGE_THRESHOLD = 40
 
 # Hough Threshold for getting consistent lines on the 
 # hough_simple images. Change this.
-HOUGH_SIMPLE_1_THRESHOLD = 0
-HOUGH_SIMPLE_2_THRESHOLD = 0
+HOUGH_SIMPLE_1_THRESHOLD =180
+HOUGH_SIMPLE_2_THRESHOLD = 230
 
 # Hough Threshold for getting consistent lines on the 
 # hough_complex_1 image. Change this.
-HOUGH_COMPLEX_THRESHOLD = 0
+HOUGH_COMPLEX_THRESHOLD = 140
 
 # This contains a list of various images and other files generated from 
 # running your programs. By default, it contains the filenames of all files
@@ -56,7 +56,7 @@ test: test1 test2 test3 test4
 	
 # 'make test1' tests only program 1
 test1: p1
-	./p1 hough_simple_1.pgm p11.pgm
+	./p1 input.pgm p11.pgm
 	./p1 hough_simple_2.pgm p12.pgm
 	./p1 hough_complex_1.pgm p13.pgm
 
@@ -68,15 +68,15 @@ test2: p2
 
 # 'make test3' tests only program 3
 test3: p3
-	./p3 hough_simple_1.pgm h21.pgm $(HOUGH_SIMPLE_1_THRESHOLD) p31.pgm
+	./p3 input.pgm h21.pgm $(HOUGH_SIMPLE_1_THRESHOLD) p31.pgm
 	./p3 hough_simple_2.pgm h22.pgm $(HOUGH_SIMPLE_2_THRESHOLD) p32.pgm
 	./p3 hough_complex_1.pgm h23.pgm $(HOUGH_COMPLEX_THRESHOLD) p33.pgm
 
 # 'make test4' tests only program 4
 test4: p4
-	./p4 hough_simple_1.pgm h21.pgm p21.pgm $(HOUGH_SIMPLE_THRESHOLD) p41.pgm
-	./p4 hough_simple_2.pgm h22.pgm p22.pgm $(HOUGH_SIMPLE_THRESHOLD) p42.pgm
-	./p4 hough_complex_1.pgm h23.pgm p23.pgm $(HOUGH_COMPLEX_THRESHOLD) p43.pgm
+#	./p4 hough_simple_1.pgm h21.pgm p21.pgm $(HOUGH_SIMPLE_THRESHOLD) p41.pgm
+#	./p4 hough_simple_2.pgm h22.pgm p22.pgm $(HOUGH_SIMPLE_THRESHOLD) p42.pgm
+#	./p4 hough_complex_1.pgm h23.pgm p23.pgm $(HOUGH_COMPLEX_THRESHOLD) p43.pgm
 
 # 'make all' builds all 4 programs (but doesn't run them)
 all: p1 p2 p3 p4
