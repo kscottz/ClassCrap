@@ -10,43 +10,43 @@ using namespace std;
 int main(int argc, char *argv[])
 {
 
-  if(argc != 4 )
-    {
-      cout << "Argument error" << endl;
-      return 1;
-    }
-  char * inname = argv[1];
+  //if(argc != 6 )
+  // {
+  //    cout << "Argument error" << endl;
+  //   return 1;
+  //  }
+  for( int i=0; i < 6; i++)
+    cout << argv[i] << endl;
 
+  cout << argv[0] << endl;
+  char * orig  = argv[1];
   Image * inImg = new Image();
-  int retVal = readImage(inImg,inname);
-  
-  if( retVal || inImg == NULL )
-    {
-      cout << "Bad input image name:" << inname << endl;
-      return retVal;
-    }
-  std::string dbName(argv[2]);
- 
+  int retVal = readImage(inImg,orig);
 
-  std::vector<SObjectLabel> data;
-  data = get_morphology(inImg);
-  std::vector<SObjectLabel>::iterator iter;
-  for( iter = data.begin(); iter != data.end(); ++iter)
-    {
-      apply_label(inImg,*iter);
-    }
-  retVal = write_database(dbName,data);
-  if( retVal )
-    {
-      cout << "Could not write output database" << endl;
-      return retVal;
-    }
+  char * accfname  = argv[2];
+  Image * acc = new Image();
+  retVal = readImage(acc,accfname);
+
+  char * edgefname  = argv[3];
+  Image * edge  = new Image();
+  retVal = readImage(edge,edgefname);
+
+  int thresh = atoi(argv[4]);
+
+  char * output  = argv[5];
+  Image* outImg = NULL;
   
-  char * oname = argv[3];
-  retVal = writeImage(inImg,oname);
+  threshold(edge,128);
+  threshold(acc,thresh);
+  Image * reconstruct = NULL; 
+  reconstruct = clone(edge);
+  hough_reconstruct(acc,reconstruct);
+  outImg = logicalAnd(edge,reconstruct);
+  
+  retVal = writeImage(outImg,output);
   if( retVal )
     {
-      cout << "Error saving file: " << oname << endl;
+      //cout << "Error saving file: " << oname << endl;
       return retVal;
     }
   return 0;

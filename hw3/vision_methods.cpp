@@ -577,3 +577,28 @@ int hough_reconstruct(Image* accumulator, Image* output)
     }
   return retVal; 
 }
+/******************************************************************************************/ 
+Image* logicalAnd(Image* imgA, Image* imgB)
+{
+  Image * retVal;
+  retVal = clone(imgA);
+  int w = getNCols(imgA);
+  int h = getNRows(imgA);
+  int a = 0;
+  int b = 0;
+  for(int i=0;i<h;i++)
+    {
+      for(int j=0;j<w;j++)
+	{
+	  a=getPixel(imgA,i,j);
+	  b=getPixel(imgB,i,j);
+	  int c=(a+b)/2;
+	  if( c > 172 )
+	    {
+	      setPixel(retVal,i,j,COLOR_WHITE);
+	    }
+	}
+    }
+  return retVal;
+}
+/******************************************************************************************/ 

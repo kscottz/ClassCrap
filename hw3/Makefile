@@ -74,9 +74,9 @@ test3: p3
 
 # 'make test4' tests only program 4
 test4: p4
-#	./p4 hough_simple_1.pgm h21.pgm p21.pgm $(HOUGH_SIMPLE_THRESHOLD) p41.pgm
-#	./p4 hough_simple_2.pgm h22.pgm p22.pgm $(HOUGH_SIMPLE_THRESHOLD) p42.pgm
-#	./p4 hough_complex_1.pgm h23.pgm p23.pgm $(HOUGH_COMPLEX_THRESHOLD) p43.pgm
+	./p4 input.pgm h21.pgm p21.pgm $(HOUGH_SIMPLE_1_THRESHOLD) p41.pgm
+	./p4 hough_simple_2.pgm h22.pgm p22.pgm $(HOUGH_SIMPLE_2_THRESHOLD) p42.pgm
+	./p4 hough_complex_1.pgm h23.pgm p23.pgm $(HOUGH_COMPLEX_THRESHOLD) p43.pgm
 
 # 'make all' builds all 4 programs (but doesn't run them)
 all: p1 p2 p3 p4

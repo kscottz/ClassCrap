@@ -57,4 +57,5 @@ Image* clone(Image* img);
 Image* do_hough_line(Image * img); 
 int draw_hough(Image *im, int x, int y);
 int hough_reconstruct(Image* accumulator, Image* output);
+Image* logicalAnd(Image* imgA, Image* imgB);
 #endif //VISION_UTILITIES_H
