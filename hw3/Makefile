@@ -19,9 +19,8 @@ METHODS = vision_methods.cpp
 METHODSH = vision_methods.h
 
 # The utilities file. Leave this as is.
-UTILS = vision_utilities.c
-UTILSH = vision_utilities.h
-
+UTILS = vision_utilities.c 
+UTILSH = vision_utilities.h 
 # Enter the names of your source files here. If you have header files as well,
 # then do not include them here (they will be autoincluded).
 P1SRC = p1.cpp
@@ -56,45 +55,45 @@ test: test1 test2 test3 test4
 	
 # 'make test1' tests only program 1
 test1: p1
-	./p1 input.pgm p11.pgm
+	./p1 hough_simple_1.pgm p11.pgm
 	./p1 hough_simple_2.pgm p12.pgm
 	./p1 hough_complex_1.pgm p13.pgm
 
 # 'make test2' tests only program 2
 test2: p2
-	./p2 input.pgm $(EDGE_THRESHOLD) p21.pgm h21.pgm
+	./p2 p11.pgm $(EDGE_THRESHOLD) p21.pgm h21.pgm
 	./p2 p12.pgm $(EDGE_THRESHOLD) p22.pgm h22.pgm
 	./p2 p13.pgm $(EDGE_THRESHOLD) p23.pgm h23.pgm
 
 # 'make test3' tests only program 3
 test3: p3
-	./p3 input.pgm h21.pgm $(HOUGH_SIMPLE_1_THRESHOLD) p31.pgm
+	./p3 hough_simple_1.pgm h21.pgm $(HOUGH_SIMPLE_1_THRESHOLD) p31.pgm
 	./p3 hough_simple_2.pgm h22.pgm $(HOUGH_SIMPLE_2_THRESHOLD) p32.pgm
 	./p3 hough_complex_1.pgm h23.pgm $(HOUGH_COMPLEX_THRESHOLD) p33.pgm
 
 # 'make test4' tests only program 4
 test4: p4
-	./p4 input.pgm h21.pgm p21.pgm $(HOUGH_SIMPLE_1_THRESHOLD) p41.pgm
+	./p4 hough_simple_1.pgm h21.pgm p21.pgm $(HOUGH_SIMPLE_1_THRESHOLD) p41.pgm
 	./p4 hough_simple_2.pgm h22.pgm p22.pgm $(HOUGH_SIMPLE_2_THRESHOLD) p42.pgm
 	./p4 hough_complex_1.pgm h23.pgm p23.pgm $(HOUGH_COMPLEX_THRESHOLD) p43.pgm
 
 # 'make all' builds all 4 programs (but doesn't run them)
-all: p1 p2 p3 p4
+all: p1 p2 p3 p4 convert
 
 # 'make p1' builds p1 only
-p1: $(P1SRC) $(UTILS)
+p1: $(P1SRC) $(UTILS) $(METHODS)
 	$(CC) $(CFLAGS) -o $@ $(P1SRC) $(UTILS) $(METHODS) $(LFLAGS)
 
 # 'make p2' builds p2 only
-p2: $(P2SRC) $(UTILS)
+p2: $(P2SRC) $(UTILS) $(METHODS)
 	$(CC) $(CFLAGS) -o $@ $(P2SRC) $(UTILS) $(METHODS) $(LFLAGS)
 
 # 'make p3' builds p3 only
-p3: $(P3SRC) $(UTILS)
+p3: $(P3SRC) $(UTILS) $(METHODS)
 	$(CC) $(CFLAGS) -o $@ $(P3SRC) $(UTILS) $(METHODS) $(LFLAGS)
 
 # 'make p4' builds p4 only
-p4: $(P4SRC) $(UTILS)
+p4: $(P4SRC) $(UTILS) $(METHODS)
 	$(CC) $(CFLAGS) -o $@ $(P4SRC) $(UTILS) $(METHODS) $(LFLAGS)
 
 # the rule for building the vision utilities
@@ -107,7 +106,7 @@ vision_methods.o: vision_methods.cpp vision_methods.h
 # 'make submit' creates a tar of all files in the directory
 # NOTE 1: It also runs 'make clean' before submission.
  submit: clean
-	tar -czvf $(UNI)-hw3.tar.gz $(P1SRC) $(P2SRC) $(P3SRC) $(P4SRC) $(UTILS) $(UTILSH) Makefile README
+	tar -czvf $(UNI)-hw3.tar.gz $(P1SRC) $(P2SRC) $(P3SRC) $(P4SRC) $(UTILS) $(UTILSH) $(METHODS) KAS2221HW3.pdf Makefile README.txt 
 
 # 'make extract' extracts all files into a new folder named UNI
 extract: $(UNI).tar.gz
@@ -117,6 +116,10 @@ extract: $(UNI).tar.gz
 	
 # 'make clean' removes all output and temporary files
 clean:
-	-rm -f p1 p2 p3 p4 vision_utilities.o $(OUTPUTS_TO_CLEAN) core CORE
+	-rm -f p1 p2 p3 p4 vision_utilities.o $(OUTPUTS_TO_CLEAN) core CORE *.png *.aux *.out *.log
 
+#image MAGIK! 
+convert:
+	mogrify -format png p*.pgm
+	open *.png
 

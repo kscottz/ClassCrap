@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
   char * output  = argv[5];
   Image* outImg = NULL;
   
-  threshold(edge,128);
+  //threshold(edge,128);
   threshold(acc,thresh);
   Image * reconstruct = NULL; 
   reconstruct = clone(edge);
