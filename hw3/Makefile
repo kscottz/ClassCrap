@@ -2,7 +2,7 @@
 # Comments begin with a # (like this line)
 
 # Your UNI
-UNI = kas2221	
+UNI = kas2221
 
 # VARIOUS VARIABLES (you will need to change some of these)
 # The compiler. If you're writing code using c++, change gcc to g++
@@ -34,12 +34,12 @@ EDGE_THRESHOLD = 40
 
 # Hough Threshold for getting consistent lines on the 
 # hough_simple images. Change this.
-HOUGH_SIMPLE_1_THRESHOLD =180
-HOUGH_SIMPLE_2_THRESHOLD = 230
+HOUGH_SIMPLE_1_THRESHOLD =240
+HOUGH_SIMPLE_2_THRESHOLD = 220
 
 # Hough Threshold for getting consistent lines on the 
 # hough_complex_1 image. Change this.
-HOUGH_COMPLEX_THRESHOLD = 140
+HOUGH_COMPLEX_THRESHOLD = 185
 
 # This contains a list of various images and other files generated from 
 # running your programs. By default, it contains the filenames of all files
@@ -106,7 +106,7 @@ vision_methods.o: vision_methods.cpp vision_methods.h
 # 'make submit' creates a tar of all files in the directory
 # NOTE 1: It also runs 'make clean' before submission.
  submit: clean
-	tar -czvf $(UNI)-hw3.tar.gz $(P1SRC) $(P2SRC) $(P3SRC) $(P4SRC) $(UTILS) $(UTILSH) $(METHODS) KAS2221HW3.pdf Makefile README.txt 
+	tar -czvf $(UNI)-hw3.tar.gz *.pgm $(P1SRC) $(P2SRC) $(P3SRC) $(P4SRC) $(UTILS) $(UTILSH) $(METHODS) $(METHODSH) KAS2221HW3.pdf Makefile README.TXT 
 
 # 'make extract' extracts all files into a new folder named UNI
 extract: $(UNI).tar.gz
@@ -117,6 +117,7 @@ extract: $(UNI).tar.gz
 # 'make clean' removes all output and temporary files
 clean:
 	-rm -f p1 p2 p3 p4 vision_utilities.o $(OUTPUTS_TO_CLEAN) core CORE *.png *.aux *.out *.log
+	-rm -fr *.dSYM
 
 #image MAGIK! 
 convert:

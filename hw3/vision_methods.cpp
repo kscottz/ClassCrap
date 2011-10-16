@@ -485,7 +485,7 @@ Image* do_hough_line(Image * img)
 {
   int w = getNCols(img);
   int h = getNRows(img);
-  int thetaRes = 360;
+  int thetaRes = 180;
   int rhoRes = sqrt((w*w)+(h*h));
   Image* retVal = new Image();
   setSize(retVal,rhoRes/*w*/,thetaRes /*h*/);
