@@ -51,11 +51,14 @@ int write_database(std::string fname, std::vector<SObjectLabel>& data);
 std::vector<SObjectLabel> read_database(std::string fname);
 int compare_objects(Image* img, std::vector<SObjectLabel>& db, std::vector<SObjectLabel>& found, float threshold);
 int apply_label(Image* img, SObjectLabel label);
-Image* sobel(Image* img);
+Image* laplace(Image* img);
+Image* sobel(Image * img);
 Image* convolve(Image* img, int** filter, int sz);
 Image* clone(Image* img);
 Image* do_hough_line(Image * img); 
 int draw_hough(Image *im, int x, int y);
 int hough_reconstruct(Image* accumulator, Image* output);
 Image* logicalAnd(Image* imgA, Image* imgB);
+void cleanup(Image* img);
+Image * dilate(Image* img);
 #endif //VISION_UTILITIES_H

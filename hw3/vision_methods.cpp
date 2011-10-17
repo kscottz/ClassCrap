@@ -407,7 +407,7 @@ int apply_label(Image* img, SObjectLabel label)
   return(0);
 }
 /******************************************************************************************/ 
-Image* sobel(Image* img)
+Image* laplace(Image* img)
 {
   int sz = 3;
   int ** filter = new int*[sz];
@@ -427,6 +427,57 @@ Image* sobel(Image* img)
   filter[2][2] = 1; 
 
   return convolve(img, filter, sz); 
+}
+/******************************************************************************************/ 
+Image* sobel(Image * img)
+{
+  int sz = 3;
+  int ** hs = new int*[sz];
+  int ** v = new int*[sz];
+  for( int i=0; i < sz; i++)
+    {
+      hs[i] = new int[sz];
+      v[i] = new int[sz];
+    }
+  hs[0][0] = -1;
+  hs[0][1] = 0;
+  hs[0][2] = 1;
+  hs[1][0] = -2;
+  hs[1][1] = 0;
+  hs[1][2] = 2;
+  hs[2][0] = -1;
+  hs[2][1] = 0;
+  hs[2][2] = 1;
+
+  v[0][0] = 1;
+  v[0][1] = 2;
+  v[0][2] = 1;
+  v[1][0] = 0;
+  v[1][1] = 0;
+  v[1][2] = 0;
+  v[2][0] = -1;
+  v[2][1] = -2;
+  v[2][2] = -1;
+ 
+  Image* hvals = convolve(img,hs,sz);
+  Image* vvals = convolve(img,v,sz);
+  Image * retVal = clone(img);
+  int w = getNCols(img);
+  int h = getNRows(img);
+  for(int i=0;i<h;i++)//y
+    {
+      for(int j=0;j<w;j++)//x
+	{
+	  int m = getPixel(hvals,i,j);
+	  int n = getPixel(vvals,i,j);
+	  int c = sqrt((m*m)+(n*n));
+	  //cout << m << " " << n << " " << c << endl; 
+	  setPixel(retVal,i,j,c); 
+	}
+    }
+  cleanup(hvals);
+  cleanup(vvals);
+  return retVal;
 }
 /******************************************************************************************/ 
 Image* convolve(Image* img, int** filter, int sz)
@@ -602,3 +653,37 @@ Image* logicalAnd(Image* imgA, Image* imgB)
   return retVal;
 }
 /******************************************************************************************/ 
+void cleanup(Image* img)
+{
+  if(NULL != img && NULL != img->data)
+    {
+      delete [] img->data;
+      delete img;
+      img = NULL; 
+    } 
+}
+/******************************************************************************************/ 
+Image * dilate(Image* img)
+{
+  int w = getNCols(img);
+  int h = getNRows(img);
+  Image * retVal = NULL;
+  retVal = clone(img);
+  for(int i=1;i<h-1;i++)
+    {
+      for(int j=1;j<w-1;j++)
+	{
+	  int me = getPixel(img,i,j);
+	  int up = getPixel(img,i,j-1);
+	  int down = getPixel(img,i,j+1);
+	  int left = getPixel(img,i-1,j);
+	  int right = getPixel(img,i+1,j);
+       
+	  if(up>0||down>0||left>0||right>0||me>0)
+	    {
+	      setPixel(retVal,i,j,255);
+	    }
+	}
+    }
+  return retVal;
+}

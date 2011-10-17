@@ -9,16 +9,6 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-
-  //if(argc != 6 )
-  // {
-  //    cout << "Argument error" << endl;
-  //   return 1;
-  //  }
-  for( int i=0; i < 6; i++)
-    cout << argv[i] << endl;
-
-  cout << argv[0] << endl;
   char * orig  = argv[1];
   Image * inImg = new Image();
   int retVal = readImage(inImg,orig);
@@ -38,9 +28,11 @@ int main(int argc, char *argv[])
   
   //threshold(edge,128);
   threshold(acc,thresh);
+
   Image * reconstruct = NULL; 
   reconstruct = clone(edge);
   hough_reconstruct(acc,reconstruct);
+  reconstruct = dilate(reconstruct);
   outImg = logicalAnd(edge,reconstruct);
   
   retVal = writeImage(outImg,output);
@@ -49,5 +41,9 @@ int main(int argc, char *argv[])
       //cout << "Error saving file: " << oname << endl;
       return retVal;
     }
+  cleanup(edge);
+  cleanup(reconstruct);
+  cleanup(acc);
+  cleanup(outImg);
   return 0;
 }

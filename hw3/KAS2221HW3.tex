@@ -1,0 +1,138 @@
+\documentclass{article}
+
+\usepackage{fullpage} % Include this if you want to cram lots of things on a page
+ 
+\usepackage{amsmath} % these are standard macro packages of the American Mathematical Society
+\usepackage{amssymb}
+\usepackage{hyperref}
+%\usepackage{stmaryrd}
+
+\usepackage{epsfig} % if you want figures
+
+%\usepackage{fancyhdr} % These 4 lines are needed to set up the running  header
+%\fancyhead[LE,RO]{Katherine Scott - Homework 1}
+%\fancyhead[RE,LO]{\thepage}
+%\pagestyle{fancy}
+
+\newcommand{\matlab}[1]
+{\centerline{\parbox{.9\textwidth}{\noindent\textsc{\bf MATLAB:} #1}}}
+
+\newcommand{\code}[1]{\texttt{#1}}
+
+\newcommand {\x}{\V{x}}
+\newcommand {\y}{\V{y}}
+\newcommand {\V}[1]{\mbox{\boldmath$#1$}}
+% To add some paragraph space between lines.
+% This also tells LaTeX to preferably break a page on one of these gaps
+% if there is a needed pagebreak nearby.
+\newcommand{\blankline}{\quad\pagebreak[2]}
+
+\begin{document}
+\title{Computer Vision: Homework 3}
+
+\author{Katherine A. Scott}
+\maketitle
+\mbox{}
+\begin{center}
+\href{mailto:katherineAScott@gmail.com}{kas2221@columbia.edu}
+
+\end{center}
+\section{Problem 1}
+\subsection{Part A}
+Let's call our 3x3 image that we want to multiple our kernel and define a couple variables:
+\[img(i,j)=
+ \begin{bmatrix}
+  a & b & c \\
+  d & e & f \\
+  g & h & k \\
+ \end{bmatrix}; A = \frac{1}{16}; B=2A=\frac{2}{16}; E=4A=\frac{4}{16}
+\]
+This gives us the convolution kernel of the form:
+\[img(i,j)=
+ \begin{bmatrix}
+  A & B & A \\
+  B & E & B \\
+  A & B & A \\
+ \end{bmatrix}
+\]
+From this we can see that the value of the edge image at $(i,j)$ can be computed as:
+\[
+img(i,j)=aA+bB+cA+dB+eE+fB+gA+hB+kA
+\]
+This is $8MN$ additions and $9MN$ multiplications, but we can do a lot better really quickly if we gather terms:
+\[
+img(i,j)=A(a+c+g+k)+B(b+d+f+h)+Ee
+\]
+So now we still have $8MN$ additions but only $3MN$ multiplications.
+\subsection{Part B} 
+We can do a lot better than $8MN$ additions but only $3MN$ multiplications. If we assume we are raster scanning the image and moving the kernel from left to right then from the top to the bottom we can save terms between computations. Using the same notation we define:
+\[
+\alpha = A(c+k)+Bf 
+\]
+Now we let $\alpha^{\prime}$ be the previous alpha value for the calculation at the pixel to the left of the current pixel (i.e. $j-1$), and $\alpha^{\prime \prime}$ be the value of alpha two steps prior (i.e. $j-2$) This means our kernel becomes
+\[
+img(i,j)=
+\begin{bmatrix}
+\vline & \vline & \vline\\
+\alpha^{\prime\prime} & 2\alpha^{\prime} &\alpha \\
+\vline & \vline & \vline\\
+\end{bmatrix}
+\]
+and our equation at each step becomes:
+\[
+img(i,j)=\alpha^{\prime\prime} +2\alpha^{\prime} + A(c+k)+Bf 
+\]
+This means the total number of calculations (ignoring the calculations need to start a new row) is $4MN$ additions and $3MN$ additions. For large images the setup cost is negligible and these terms dominate. 
+\section{Problem 1}
+\subsection{Resulting Sinusoid in Hough Space}
+\subsection{Amplitude and Phase}
+\subsection{Does the period vary?}
+
+We're given that for E, the second moment of inertia of our binary image $b(x,y)$
+\begin{equation}
+a=\iint_{I^{\prime}} (x^{\prime})^{2}b(x,y)\mathrm{d}x^{\prime} \mathrm{d}y^{\prime}
+\end{equation}
+\begin{equation}
+b=2\iint_{I^{\prime}} (y^{\prime}x^{\prime})b(x,y)\mathrm{d}x^{\prime} \mathrm{d}y^{\prime}
+\end{equation}
+\begin{equation}
+c=\iint_{I^{\prime}} (y^{\prime})^{2}b(x,y)\mathrm{d}x^{\prime} \mathrm{d}y^{\prime}
+\end{equation}
+%\begin{equation}
+\[cov(E)=
+ \begin{bmatrix}
+  a & b/2 \\
+  b/2 & c \\
+ \end{bmatrix}
+\]
+%\end{equation}
+By definition the entries in the covariance matrix are:
+\[
+\Sigma_{ij}= cov(X_i,X_j)=E[(X_i-\mu_i)(X_j-\mu_j)]
+\]
+where $\mu_i=\mu_j=0$ if the object is centered at zero. For a two dimensional image. we get
+\[
+\Sigma_{xx}=E[x^2]=\iint_{-\infty}^\infty x^2b(x,y)\mathrm{d}x\mathrm{d}y=a
+\]
+\[
+\Sigma_{xy}=\Sigma_{yx}=E[xy]=\iint_{-\infty}^\infty xyb(x,y)\mathrm{d}x\mathrm{d}y=b/2
+\]
+\[
+\Sigma_{yy}=E[y^2]=\iint_{-\infty}^\infty y^2b(x,y)\mathrm{d}x\mathrm{d}y=c
+\]
+The eigen values of this matrix are
+\[
+\lambda = \frac{a+c}{2}\pm\ \sqrt{\frac{2b^2 + (a-c)^2}{2}}
+\]
+
+The Eigen values of the covariance matrix are the lengths of the vectors that point in the direction of the maximal and minimal moments of the binary image. All other possible moments of the image fall within this range of the two eigen values. This is to say that the eigen vectors form a basis along which all of the possible image moments of the binary image exist. Reasoning about it in 2D, the covariance matrix defines the rotation that would move a distribution that is aligned to the x and y axes to an arbitrary angle. Say for example that our binary image was a two dimensional Gaussian distribution that was aligned to the x and y axes, and we then constructed a rotation of for that distribution about an angle $\theta$. For this new covariance matrix after rotation, the eigen values would be the lengths (the $\sigma_{x}$ and $\sigma_y$ of the original distribution prior to the rotation. 
+\subsection{B}
+Since E is defines as follows
+\[
+E=\iint_{I}r^2 b(x,y)\mathrm{d}x \mathrm{d}y
+\] 
+and r is a measure of distance, and its value is square, and because the function $b(x,y)$ can is defined as either zero or one, the integral over the image can not possibly less than zero.
+
+\subsection{C}
+There is only one case that I can think of where this would happen, an infinitesimally small point at the center of rotation would have no moment of rotation as the $r^2$ would be zero. 
+\end{document}

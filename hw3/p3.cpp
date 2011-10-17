@@ -26,7 +26,8 @@ int main(int argc, char *argv[])
   hough_reconstruct(accumulator,inImg);
   
   retVal = writeImage(inImg,outimg);
-
+  cleanup(inImg);
+  cleanup(accumulator);
   return 0;
 }
 

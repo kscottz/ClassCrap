@@ -38,6 +38,9 @@ int main(int argc, char *argv[])
       cout << "Error saving file: " << endl;
       return retVal;
     }
+  cleanup(inImg);
+  cleanup(accumulator);
+  
   return 0;
 }
 

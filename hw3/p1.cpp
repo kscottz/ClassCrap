@@ -34,6 +34,8 @@ int main(int argc, char *argv[])
       cout << "Error saving file: " << oname << endl;
       return retVal;
     }
+  cleanup(inImg);
+  cleanup(output);
   // should clean up
   return 0;
 }
