@@ -2,7 +2,7 @@
 # Comments begin with a # (like this line)
 
 # Your UNI
-UNI = abc1234
+UNI = kas2221
 
 # VARIOUS VARIABLES (you will need to change some of these)
 # The compiler. If you're writing code using c++, change gcc to g++
@@ -27,7 +27,7 @@ P5SRC = p5.cpp
 # generated from running the 'test' target. If you generate any other files,
 # make sure this is correct. This list of files is deleted when 'make clean'
 # or 'make submit' are run (to prevent submitting all these files).
-OUTPUTS_TO_CLEAN = sphere.txt directions.txt sphere_mask.pgm vase_mask.pgm sphere_normal.pbm vase_normal.pbm sphere_albedo.pgm vase_albedo.pgm sphere_gradient.dat vase_gradient.dat
+OUTPUTS_TO_CLEAN = sphere.txt directions.txt sphere_mask.pgm vase_mask.pgm sphere_normal.pbm vase_normal.pbm sphere_albedo.pgm vase_albedo.pgm sphere_gradient.dat vase_gradient.dat *.cpp~ *.h~ *.obj *.c~ *.png
 
 # THE BUILD RULES (you shouldn't need to edit any of these)
 # 'make test' builds all 5 programs and then tests them.
@@ -60,39 +60,51 @@ test5: p5
 # 'make all' builds all 4 programs (but doesn't run them)
 all: p1 p2 p3 p4 p5
 
+#my methods
+METHODS = vision_methods.cpp
+METHODSH = vision_methods.h
+
 # The utilities file. Leave this as is.
 UTILS = vision_utilities.c
 UTILSH = vision_utilities.h
 
 # 'make p1' builds p1 only
-p1: $(P1SRC) $(UTILS)
-	$(CC) $(CFLAGS) -o $@ $(P1SRC) $(UTILS) $(LFLAGS)
+p1: $(P1SRC) $(UTILS) $(METHODS)
+	$(CC) $(CFLAGS) -o $@ $(P1SRC) $(METHODS) $(UTILS) $(LFLAGS)
 
 # 'make p2' builds p2 only
-p2: $(P2SRC) $(UTILS)
-	$(CC) $(CFLAGS) -o $@ $(P2SRC) $(UTILS) $(LFLAGS)
+p2: $(P2SRC) $(UTILS) $(METHODS)
+	$(CC) $(CFLAGS) -o $@ $(P2SRC) $(METHODS) $(UTILS) $(LFLAGS)
 
 # 'make p3' builds p3 only
-p3: $(P3SRC) $(UTILS)
-	$(CC) $(CFLAGS) -o $@ $(P3SRC) $(UTILS) $(LFLAGS)
+p3: $(P3SRC) $(UTILS) $(METHODS)
+	$(CC) $(CFLAGS) -o $@ $(P3SRC) $(METHODS) $(UTILS) $(LFLAGS)
 
 # 'make p4' builds p4 only
-p4: $(P4SRC) $(UTILS)
-	$(CC) $(CFLAGS) -o $@ $(P4SRC) $(UTILS) $(LFLAGS)
+p4: $(P4SRC) $(UTILS) $(METHODS)
+	$(CC) $(CFLAGS) -o $@ $(P4SRC) $(METHODS) $(UTILS) $(LFLAGS)
 
 # 'make p5' builds p5 only
-p5: $(P5SRC) $(UTILS)
-	$(CC) $(CFLAGS) -o $@ $(P5SRC) $(UTILS) $(LFLAGS)
+p5: $(P5SRC) $(UTILS) $(METHODS)
+	$(CC) $(CFLAGS) -o $@ $(P5SRC) $(UTILS) $(METHODS) $(LFLAGS)
 
 # the rule for building the vision utilities
 vision_utilities.o: vision_utilities.c vision_utilities.h
 	$(CC) -c -Wall -pedantic -o $@ vision_utilities.c
 
+vision_methods.o: vision_methods.cpp vision_methods.h
+	$(CC) -c -Wall -pedantic -o $@ vision_methods.cpp
+
 # 'make submit' creates a tar of all files in the directory
 # NOTE 1: It also runs 'make clean' before submission.
  submit: clean
-	tar -czvf $(UNI)-hw4.tar.gz $(P1SRC) $(P2SRC) $(P3SRC) $(P4SRC) $(P5SRC) $(UTILS) $(UTILSH) vase_seed.txt sphere_seed.txt Makefile README
+	tar -czvf $(UNI)-hw4.tar.gz $(P1SRC) $(P2SRC) $(P3SRC) $(P4SRC) $(P5SRC) $(UTILS) $(UTILSH) $(METHODS) vase_seed.txt sphere_seed.txt Makefile README
 
 # 'make clean' removes all output and temporary files
 clean:
 	-rm -f p1 p2 p3 p4 p5 vision_utilities.o $(OUTPUTS_TO_CLEAN) core CORE
+
+#image MAGIK! 
+convert:
+	mogrify -format png *.pgm
+	open *.png
