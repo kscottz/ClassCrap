@@ -211,16 +211,37 @@ vector<SObjectLabel> get_morphology(Image * img)
 	      if( mIter != color_to_obj.end() )// we have a match
 		{
 		  color_to_obj[c].M00 += 1;
+	      
 		  color_to_obj[c].M10 += j;
 		  color_to_obj[c].M01 += i;
 		  color_to_obj[c].M11 += i*j;
 		  color_to_obj[c].M02 += i*i;
 		  color_to_obj[c].M20 += j*j;
+		  if(j<color_to_obj[c].minX)
+		    {
+		      color_to_obj[c].minX = j;
+		    }
+		  if(j>color_to_obj[c].maxX)
+		    {
+		      color_to_obj[c].maxX = j;
+		    }
+		  if(i<color_to_obj[c].minY)
+		    {
+		      color_to_obj[c].minY = i;
+		    }
+		  if(i>color_to_obj[c].maxY)
+		    {
+		      color_to_obj[c].maxY = i;
+		    }
 		}
 	      else // new color
 		{
 		  // caclulate the raw moments
 		  SMomentData data;
+		  data.minX = w;
+		  data.maxX = 0;
+		  data.minY = h;
+		  data.maxY = 0;
 		  data.M00 = 1;
 		  data.M10 = j;
 		  data.M01 = i;
@@ -240,6 +261,10 @@ vector<SObjectLabel> get_morphology(Image * img)
       SObjectLabel newObj;
       char foo[32];
       sprintf(foo,"%i",mIter->first);
+      newObj.m_minX = (mIter->second).minX;
+      newObj.m_minY = (mIter->second).minY;
+      newObj.m_maxX = (mIter->second).maxX;
+      newObj.m_maxY = (mIter->second).maxY;
       newObj.m_label = string(foo);
       newObj.m_area  = (mIter->second).M00;
       newObj.m_x_pos = (mIter->second).M10/(mIter->second).M00;

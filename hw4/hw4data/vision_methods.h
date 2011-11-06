@@ -19,6 +19,10 @@ struct SMomentData
   int M11;//sum x*y*I(x,y)
   int M20;//sum x^2*I(x,y)
   int M02;//sum y^2*I(x,y)
+  int minX;
+  int maxX;
+  int minY;
+  int maxY;
 };
 
 struct SObjectLabel
@@ -37,7 +41,10 @@ struct SObjectLabel
   float m_mu11;
   float m_mu20;
   float m_mu02;
-
+  int m_minX;
+  int m_maxX;
+  int m_minY;
+  int m_maxY;
 };
 
 int threshold(Image* img, int thresh);
