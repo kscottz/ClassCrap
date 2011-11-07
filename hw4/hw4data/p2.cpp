@@ -10,37 +10,33 @@ using namespace std;
 int main(int argc, char *argv[])
 {
 
-  if(argc != 5 )
+  if(argc != 8 )
     {
       cout << "Argument error" << endl;
       return 1;
     }
-  char * inname = argv[1];
-  int thresh  = atoi(argv[2]); 
-  char * outimg = argv[3];
-  char * houghimg = argv[4];
-  Image * inImg = new Image();
-  int retVal = readImage(inImg,inname);
-  
-  if( retVal || inImg == NULL )
-    {
-      cout << "Bad input image name:" << inname << endl;
-      return retVal;
-    }
-  threshold(inImg,thresh);
-  retVal = writeImage(inImg,outimg);
-  Image * accumulator = NULL;
-  accumulator = do_hough_line(inImg);
-  retVal = writeImage(accumulator,houghimg);
+  char* fname = argv[1];
+  int x = 0, y = 0;
+  float r = 0.00;
+  read_pfile(fname,x,y,r);
 
-  if( retVal )
-    {
-      cout << "Error saving file: " << endl;
-      return retVal;
-    }
-  cleanup(inImg);
-  cleanup(accumulator);
   
+  vector<SVector3D> results; 
+  for( int i=0; i < 5; i++ )
+    {
+      char* imgName = argv[i+2];
+      Image* img = new Image();
+      readImage(img,imgName);
+      SVector3D best; 
+      best = findLightingVector(img,x,y,r);
+      cout << "For " << imgName << " got " << best.x << " " << best.y << " " << best.z << endl;
+      results.push_back(best);
+      cleanup(img);
+    }
+
+  char* outfile = argv[8];
+  writeVectors(outfile,results);
+
   return 0;
 }
 

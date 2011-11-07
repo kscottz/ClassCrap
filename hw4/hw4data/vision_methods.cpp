@@ -712,3 +712,90 @@ Image * dilate(Image* img)
     }
   return retVal;
 }
+/******************************************************************************************/ 
+int read_pfile(char* fname, int& x,int& y, float& r)
+{
+  int retVal = 0;
+  ifstream myFile;
+  int sz = 1024;
+  char* buff = new char[sz];
+  myFile.open(fname);
+  if(myFile.is_open())
+    {
+      int derp;
+      myFile.getline(buff,sz);
+      string sbuf(buff);
+      if( sbuf.length() > 0 )
+	{
+	  retVal = 1;
+	  stringstream ss(sbuf,stringstream::in);
+	  SObjectLabel data;
+	  ss  >> x 
+	      >> y 
+	      >> r;
+	}
+    }
+  if( NULL != buff )
+    delete [] buff;
+  return retVal;
+}
+/******************************************************************************************/ 
+SVector3D findLightingVector( Image* img, int x, int y, float r)
+{
+  SVector3D retVal;
+  retVal.x = 0.00;
+  retVal.y = 0.00;
+  retVal.z = 0.00;
+  int w = getNCols(img);
+  int h = getNRows(img);
+  int v = 0, vt = 0;
+  int vx = 0;
+  int vy = 0;
+  for(int i=1;i<h-1;i++) //y 
+    {
+      for(int j=1;j<w-1;j++)//x
+	{
+	   vt = getPixel(img,i,j);
+	   if( vt > v ) 
+	     {
+	       v = vt;
+	       vx = j;
+	       vy = i;
+	     }
+	}
+    }
+  float fx = 1.00*((float)vx-x);
+  float fy = 1.00*((float)vy-y);
+  cout << x << " " << y << " " << vx << " " << vy << endl;
+  cout << fx << " " << fy << endl;
+  retVal.x = fx/r;
+  retVal.y = fy/r;
+  retVal.z = -1.0 * ( sqrt( (r*r-(fx*fx)-(fy*fy)) )/r);
+  return retVal; 
+}
+/******************************************************************************************/ 
+int writeVectors(char* fname, vector<SVector3D> vecs)
+{
+  int retVal = -1;
+  ofstream myFile;
+  myFile.open(fname);
+  if(myFile.good())
+    {
+      vector<SVector3D>::iterator iter;
+      for(iter = vecs.begin(); iter != vecs.end(); ++iter)
+	{
+	  retVal++;
+	  myFile << iter->x << " "
+		 << iter->y << " " 
+		 << iter->z << " " 
+		 << endl; 
+	}
+    }
+  else
+    {
+      retVal = -1;
+    }
+  myFile.close();
+  return retVal; 
+}
+/******************************************************************************************/ 

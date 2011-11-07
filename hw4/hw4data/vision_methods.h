@@ -10,6 +10,12 @@
 /*********************************************************/
 /********************************************************/
 
+struct SVector3D
+{
+  float x;
+  float y;
+  float z;
+};
 
 struct SMomentData
 {
@@ -68,4 +74,7 @@ int hough_reconstruct(Image* accumulator, Image* output);
 Image* logicalAnd(Image* imgA, Image* imgB);
 void cleanup(Image* img);
 Image * dilate(Image* img);
+int read_pfile(char* fname, int& x,int& y, float& r);
+SVector3D findLightingVector( Image* img, int x, int y, float r); 
+int writeVectors(char* fname, std::vector<SVector3D> vecs);
 #endif //VISION_UTILITIES_H
