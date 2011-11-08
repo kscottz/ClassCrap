@@ -68,6 +68,7 @@ Image* laplace(Image* img);
 Image* sobel(Image * img);
 Image* convolve(Image* img, int** filter, int sz);
 Image* clone(Image* img);
+ImageColor* createColor( int w, int h );
 Image* do_hough_line(Image * img); 
 int draw_hough(Image *im, int x, int y);
 int hough_reconstruct(Image* accumulator, Image* output);
@@ -77,7 +78,9 @@ Image * dilate(Image* img);
 int read_pfile(char* fname, int& x,int& y, float& r);
 SVector3D findLightingVector( Image* img, int x, int y, float r); 
 int writeVectors(char* fname, std::vector<SVector3D> vecs);
+std::vector<SVector3D> readVectors(char* fname);
 Image* createMask(std::vector<Image*> imgs);
+ImageColor * createNormalMap(std::vector<Image*> imgs, Image* mask, std::vector<SVector3D> lights);
 
 
 #endif //VISION_UTILITIES_H

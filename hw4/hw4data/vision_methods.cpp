@@ -557,6 +557,21 @@ Image* clone(Image* img)
   return(retVal);
 }
 /******************************************************************************************/ 
+ImageColor* createColor( int w, int h )
+{
+  ImageColor* retVal = new ImageColor();
+  setSizeColor(retVal,w,h);
+  setColorsColor(retVal,255);
+  for(int i=0;i<h;i++)
+    {
+      for(int j=0;j<w;j++)
+	{
+	  setPixelColor(retVal,i,j,COLOR_BLACK,COLOR_BLACK,COLOR_BLACK);
+	}
+    }
+  return(retVal);
+}
+/******************************************************************************************/ 
 Image* do_hough_line(Image * img)
 {
   int w = getNCols(img);
@@ -799,6 +814,37 @@ int writeVectors(char* fname, vector<SVector3D> vecs)
   return retVal; 
 }
 /******************************************************************************************/ 
+vector<SVector3D> readVectors(char* fname)
+{
+  ifstream myFile;
+  int sz = 1024;
+  char* buff = new char[sz];
+  vector<SVector3D> retVal;
+  myFile.open(fname);
+  if(myFile.is_open())
+    {
+      int derp;
+      while(!myFile.eof())
+	{
+	  myFile.getline(buff,sz);
+	  string sbuf(buff);
+	  if( sbuf.length() > 0 )
+	    {
+	      stringstream ss(sbuf,stringstream::in);
+	      SVector3D data;
+	      ss  >> data.x 
+		  >> data.y 
+		  >> data.z;
+	      retVal.push_back(data);
+	    }
+	}
+    }
+  if( NULL != buff )
+    delete [] buff;
+  return retVal;
+
+}
+/******************************************************************************************/ 
 Image* createMask(vector<Image*> imgs)
 {
   Image * retVal = NULL;
@@ -838,5 +884,13 @@ Image* createMask(vector<Image*> imgs)
 	    }
 	}
     }
+  return retVal;
+}
+/******************************************************************************************/ 
+ImageColor * createNormalMap(vector<Image*> imgs, Image* mask, vector<SVector3D> lights)
+{
+  int w = getNCols(mask);
+  int h = getNRows(mask);
+  ImageColor* retVal = createColor(w,h);
   return retVal;
 }

@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
       cleanup(img);
     }
 
-  char* outfile = argv[8];
+  char* outfile = argv[7];
   writeVectors(outfile,results);
 
   return 0;
