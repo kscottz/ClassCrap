@@ -799,3 +799,44 @@ int writeVectors(char* fname, vector<SVector3D> vecs)
   return retVal; 
 }
 /******************************************************************************************/ 
+Image* createMask(vector<Image*> imgs)
+{
+  Image * retVal = NULL;
+  if( imgs.size() <= 0 )
+    {
+      return retVal;
+    }
+  retVal = clone(imgs[0] );
+  int w = getNCols(imgs[0]);
+  int h = getNRows(imgs[0]);
+  int c = 0;
+  vector<Image*>::iterator iter;
+  for(int i=0;i<h;i++) //y 
+    {
+      for(int j=0;j<w;j++)//x
+	{
+	  bool found = false;
+	  for( iter = imgs.begin(); 
+	       iter != imgs.end();
+	       ++iter) 
+	    {
+	      Image* foo = (*iter);
+	      c = getPixel(foo,i,j);
+	      if( c > 0 )
+		{
+		  found = true;
+		  break;
+		}
+	    }
+	  if( found )
+	    {
+	      setPixel(retVal,i,j,COLOR_WHITE);
+	    }
+	  else
+	    {
+	      setPixel(retVal,i,j,COLOR_BLACK);
+	    }
+	}
+    }
+  return retVal;
+}

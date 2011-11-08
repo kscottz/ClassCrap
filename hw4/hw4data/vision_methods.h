@@ -77,4 +77,7 @@ Image * dilate(Image* img);
 int read_pfile(char* fname, int& x,int& y, float& r);
 SVector3D findLightingVector( Image* img, int x, int y, float r); 
 int writeVectors(char* fname, std::vector<SVector3D> vecs);
+Image* createMask(std::vector<Image*> imgs);
+
+
 #endif //VISION_UTILITIES_H
