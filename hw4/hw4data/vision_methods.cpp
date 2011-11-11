@@ -9,6 +9,7 @@
 #include "limits.h"
 #include "float.h"
 #include <math.h>
+#include "vvector.h"
 using namespace std;
 /******************************************************************************************/ 
 // do the threshold
@@ -891,6 +892,100 @@ ImageColor * createNormalMap(vector<Image*> imgs, Image* mask, vector<SVector3D>
 {
   int w = getNCols(mask);
   int h = getNRows(mask);
+  
   ImageColor* retVal = createColor(w,h);
+  vector<Image*>::iterator imgIter;
+  vector<SVector3D>::iterator lightIter;
+  // build the s matrix which is fixed we'll build it from all five sources so it is over
+  // determined and we don't have to do the search for the best solution. 
+  /* float S[5][3];
+  int count = 0;
+  for( lightIter = lights.begin();
+       lightIter != lights.end();
+       ++lightIter )
+    {
+      S[count][0] = lights->x;
+      S[count][1] = lights->y;
+      S[count][2] = lights->z;
+    }*/
+  //now we invert the s matrix 
+  int idx[2][3]; // color index pair
+  for(int i=0;i<h;i++) //y 
+    {
+      for(int j=0;j<w;j++)//x
+	{
+	  int test = getPixel(mask,i,j);
+	  if(test > 0)// if we have an object
+	    {
+	      for( int k = 0;k < 3; k++) // reset our best values array. 
+		{
+		  idx[0][k] = 0;// color 
+		  idx[1][k] = 0;// index
+		}
+
+	      int count = 0; // the color index
+	      for(imgIter = imgs.begin(); // the three brightest pixels
+		  imgIter!= imgs.end();
+		  ++imgIter)
+		{
+		  int intensity = getPixel((*imgIter),i,j);
+		  for( int k=0; k < 3; k++)
+		    {
+		      if(intensity > idx[0][k] )
+			{
+			  idx[0][k] = intensity;
+			  idx[1][k] = count;
+			  break;
+			}
+			
+		    }
+		  count++;
+		}
+	      SVector3D normal;
+	      float albedo = constructNormal(lights,idx,normal);
+	    }// if test
+	}
+    }
   return retVal;
 }
+/******************************************************************************************/
+float constructNormal(vector<SVector3D>& lights, int choice[2][3], SVector3D& normal)
+{
+  float I[3];
+  I[0] = choice[0][0];
+  I[1] = choice[0][1];
+  I[2] = choice[0][2];
+
+  float S[3][3];
+  S[0][0]= lights[(choice[1][0])].x;
+  S[1][0]= lights[(choice[1][0])].y;
+  S[2][0]= lights[(choice[1][0])].z;
+ 
+  S[0][1]= lights[(choice[1][1])].x;
+  S[1][1]= lights[(choice[1][1])].y;
+  S[2][1]= lights[(choice[1][1])].z;
+  
+  S[0][2]= lights[(choice[1][2])].x;
+  S[1][2]= lights[(choice[1][2])].y;
+  S[2][2]= lights[(choice[1][2])].z;
+
+  float S_INV[3][3];
+  float det = 0.00;
+  //  INVERT_3x3(S_INV,det,S);
+  INVERT_3X3(S_INV,det,S);
+  if( det == 0.00 )
+    cout << "FUCK!" << endl; 
+
+  float M[3];
+  MAT_DOT_VEC_3X3(M,S_INV,I);
+  float length = 0.00;
+  VEC_LENGTH(length,M);
+  float albedo = length*PI;
+  normal.x = M[0]/length;
+  normal.y = M[1]/length;
+  normal.z = M[2]/length;
+  VEC_PRINT(M);
+
+
+}
+/******************************************************************************************/ 

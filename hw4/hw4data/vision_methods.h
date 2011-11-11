@@ -81,6 +81,6 @@ int writeVectors(char* fname, std::vector<SVector3D> vecs);
 std::vector<SVector3D> readVectors(char* fname);
 Image* createMask(std::vector<Image*> imgs);
 ImageColor * createNormalMap(std::vector<Image*> imgs, Image* mask, std::vector<SVector3D> lights);
-
+float constructNormal(std::vector<SVector3D>& lights, int choice[2][3], SVector3D& normal);
 
 #endif //VISION_UTILITIES_H
