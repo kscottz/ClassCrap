@@ -919,11 +919,12 @@ ImageColor * createNormalMap(vector<Image*> imgs, Image* mask, vector<SVector3D>
 	    {
 	      for( int k = 0;k < 3; k++) // reset our best values array. 
 		{
-		  idx[0][k] = 0;// color 
-		  idx[1][k] = 0;// index
+		  int intensity = getPixel(imgs[k],i,j);
+		  idx[0][k] = intensity;// color 
+		  idx[1][k] = k;// index
 		}
 
-	      int count = 0; // the color index
+	      /*	      int count = 0; // the color index
 	      for(imgIter = imgs.begin(); // the three brightest pixels
 		  imgIter!= imgs.end();
 		  ++imgIter)
@@ -940,9 +941,11 @@ ImageColor * createNormalMap(vector<Image*> imgs, Image* mask, vector<SVector3D>
 			
 		    }
 		  count++;
-		}
+		  }*/
 	      SVector3D normal;
 	      float albedo = constructNormal(lights,idx,normal);
+	      setPixelColor(retVal,i,j,scale(normal.x),scale(normal.y),scale(normal.z));
+	      
 	    }// if test
 	}
     }
@@ -974,9 +977,14 @@ float constructNormal(vector<SVector3D>& lights, int choice[2][3], SVector3D& no
   //  INVERT_3x3(S_INV,det,S);
   INVERT_3X3(S_INV,det,S);
   if( det == 0.00 )
-    cout << "FUCK!" << endl; 
-
+    {
+      cout << "FUCK!" << endl;
+      MAT_PRINT_3X3(S);
+      VEC_PRINT(I);
+      IDENTIFY_MATRIX_3X3(S_INV);
+    }
   float M[3];
+  VEC_ZERO(M);
   MAT_DOT_VEC_3X3(M,S_INV,I);
   float length = 0.00;
   VEC_LENGTH(length,M);
@@ -984,8 +992,18 @@ float constructNormal(vector<SVector3D>& lights, int choice[2][3], SVector3D& no
   normal.x = M[0]/length;
   normal.y = M[1]/length;
   normal.z = M[2]/length;
-  VEC_PRINT(M);
+  // VEC_PRINT(M);
+  return albedo; 
 
-
+}
+/******************************************************************************************/ 
+int scale(float x) // clamp x=+/-1 to [0,255]
+{
+  x = x+1.00;
+  float scale = x/2.00;
+  float val = scale*255.00;
+  int retVal = static_cast<int>(val);
+  retVal = CLAMP(retVal,0,255); 
+  return retVal; 
 }
 /******************************************************************************************/ 

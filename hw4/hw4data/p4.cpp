@@ -10,6 +10,7 @@ using namespace std;
 int main(int argc, char *argv[])
 {
  
+
   if(argc != 10 )
     {
       cout << "Argument error" << endl;
