@@ -888,13 +888,17 @@ Image* createMask(vector<Image*> imgs)
   return retVal;
 }
 /******************************************************************************************/ 
-ImageColor * createNormalMap(std::vector<Image*> imgs, Image* mask, std::vector<SVector3D> lights, Image* albedoImg)
+ImageColor * createNormalMap(std::vector<Image*> imgs, 
+			     Image* mask, 
+			     std::vector<SVector3D> lights, 
+			     Image* albedoImg,
+			     vector<SVector3D>& normals)
 {
   int w = getNCols(mask);
   int h = getNRows(mask);
   
   ImageColor* retVal = createColor(w,h);
-
+  vector<Gradient> gradients;
   vector<Image*>::iterator imgIter;
   vector<SVector3D>::iterator lightIter;
   float * albedoFloat = new float[w*h];
@@ -904,6 +908,7 @@ ImageColor * createNormalMap(std::vector<Image*> imgs, Image* mask, std::vector<
   int adx = 0; // albedo index
   float amax = FLT_MIN;
   float amin = FLT_MAX;
+  
 
   for(int i=0;i<h;i++) //y 
     {
@@ -911,6 +916,10 @@ ImageColor * createNormalMap(std::vector<Image*> imgs, Image* mask, std::vector<
 	{
 	  int test = getPixel(mask,i,j);
 	  float albedo = 0;
+	  SVector3D normal;
+	  normal.x = 0.00;
+	  normal.y = 0.00;
+	  normal.z = 1.00; 
 	  if(test > 0)// if we have an object
 	    {
 	      for( int k = 0;k < 3; k++) // reset our best values array. 
@@ -938,10 +947,12 @@ ImageColor * createNormalMap(std::vector<Image*> imgs, Image* mask, std::vector<
 		    }
 		  count++;
 		  }*/
-	      SVector3D normal;
+
 	      albedo = constructNormal(lights,idx,normal);
 	      setPixelColor(retVal,i,j,scale(normal.x),scale(normal.y),scale(normal.z));	      
 	    }// if test
+	  
+	  normals.push_back(normal);
 	  albedoFloat[adx] = albedo;
 	  if( albedo > amax )
 	    {
@@ -956,6 +967,7 @@ ImageColor * createNormalMap(std::vector<Image*> imgs, Image* mask, std::vector<
 	}
     }
   createAlbedoImage(w,h,amax,amin,albedoFloat,albedoImg );
+  
   if(NULL != albedoFloat)
     {
       cout << "Deleting" << endl; 
@@ -1047,6 +1059,50 @@ int scaleFloat(float a, float max, float min)
     }
   retVal = static_cast<int>(toInt);
   retVal = CLAMP(retVal,0,255);
+  return retVal; 
+}
+/******************************************************************************************/ 
+Gradient normal2grad(SVector3D norm)
+{
+  Gradient retVal;
+  retVal.p = norm.x/norm.z;
+  retVal.q = norm.y/norm.z; 
+  return retVal;
+}
+/******************************************************************************************/ 
+vector<Gradient> normals2grads(vector<SVector3D>& normals)
+{
+  vector<Gradient> retVal;
+  vector<SVector3D>::iterator iter;
+  for( iter = normals.begin();
+       iter != normals.end();
+       iter++)
+    {
+      retVal.push_back(normal2grad(*iter));
+    }
+  return retVal;
+}
+/******************************************************************************************/ 
+int saveGradients(std::vector<Gradient>& gradients, char* fname)
+{
+  int retVal = 0;
+  ofstream myFile;
+  myFile.open(fname);
+  if(myFile.good())
+    {
+      vector<Gradient>::iterator iter;
+      for(iter = gradients.begin(); iter != gradients.end(); ++iter)
+	{
+	  retVal++;
+	  myFile << iter->p << " "
+		 << iter->q << endl;
+	}
+    }
+  else
+    {
+      retVal = -1;
+    }
+  myFile.close();
   return retVal; 
 }
 /******************************************************************************************/ 

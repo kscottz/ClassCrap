@@ -47,10 +47,11 @@ test3: p3
 	./p3 sphere1.pgm sphere2.pgm sphere3.pgm sphere4.pgm sphere5.pgm sphere_mask.pgm
 	./p3 vase1.pgm vase2.pgm vase3.pgm vase4.pgm vase5.pgm vase_mask.pgm
 
+
 # 'make test4' tests only program 4
 test4: p4
-	./p4 directions.txt sphere1.pgm sphere2.pgm sphere3.pgm sphere4.pgm sphere5.pgm sphere_mask.pgm sphere_normal.ppm sphere_albedo.pgm
-	./p4 directions.txt vase1.pgm vase2.pgm vase3.pgm vase4.pgm vase5.pgm vase_mask.pgm vase_normal.ppm vase_albedo.pgm
+	./p4 directions.txt sphere1.pgm sphere2.pgm sphere3.pgm sphere4.pgm sphere5.pgm sphere_mask.pgm sphere_normal.ppm sphere_albedo.pgm sphere_gradient.dat
+	./p4 directions.txt vase1.pgm vase2.pgm vase3.pgm vase4.pgm vase5.pgm vase_mask.pgm vase_normal.ppm vase_albedo.pgm vase_gradient.dat
 
 # 'make test5' tests only program 5
 test5: p5

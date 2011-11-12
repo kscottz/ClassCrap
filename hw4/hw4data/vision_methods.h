@@ -81,8 +81,15 @@ int writeVectors(char* fname, std::vector<SVector3D> vecs);
 std::vector<SVector3D> readVectors(char* fname);
 Image* createMask(std::vector<Image*> imgs);
 int scaleFloat(float a, float max, float min); 
+Gradient normal2grad(SVector3D norm); 
+std::vector<Gradient> normals2grads( std::vector<SVector3D>& normals);
+int saveGradients(std::vector<Gradient>& gradients, char* fname);
 void createAlbedoImage(int width, int height, float max, float min, float * data, Image* img);
-ImageColor * createNormalMap(std::vector<Image*> imgs, Image* mask, std::vector<SVector3D> lights, Image* albedoImg);
+ImageColor * createNormalMap(std::vector<Image*> imgs, 
+			     Image* mask, 
+			     std::vector<SVector3D> lights, 
+			     Image* albedoImg,
+			     std::vector<SVector3D>& normals);
 float constructNormal(std::vector<SVector3D>& lights, int choice[2][3], SVector3D& normal);
 int scale(float x); // clamp x=+/-1 to [0,255]
 

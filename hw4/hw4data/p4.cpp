@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 {
  
 
-  if(argc != 10 )
+  if(argc != 11 )
     {
       cout << "Argument error" << endl;
       return 1;
@@ -31,11 +31,12 @@ int main(int argc, char *argv[])
   vector<Image*>::iterator iter;
   ImageColor* normalMap = NULL;
   Image* albedo = clone(imgs[0]);
-  normalMap = createNormalMap(imgs,mask,lights,albedo);
+  vector<SVector3D> normals;
+  normalMap = createNormalMap(imgs,mask,lights,albedo,normals);
+  vector<Gradient> grads = normals2grads(normals); 
+  saveGradients(grads,argv[10]);
   writeImageColor(normalMap, argv[8]);
-  cout << "Writing Albed: " << albedo << endl;
   writeImage(albedo,argv[9]);
-
 
 
   for(iter = imgs.begin(); 
