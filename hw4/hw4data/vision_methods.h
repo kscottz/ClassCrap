@@ -80,7 +80,12 @@ SVector3D findLightingVector( Image* img, int x, int y, float r);
 int writeVectors(char* fname, std::vector<SVector3D> vecs);
 std::vector<SVector3D> readVectors(char* fname);
 Image* createMask(std::vector<Image*> imgs);
-ImageColor * createNormalMap(std::vector<Image*> imgs, Image* mask, std::vector<SVector3D> lights);
+int scaleFloat(float a, float max, float min); 
+void createAlbedoImage(int width, int height, float max, float min, float * data, Image* img);
+ImageColor * createNormalMap(std::vector<Image*> imgs, Image* mask, std::vector<SVector3D> lights, Image* albedoImg);
 float constructNormal(std::vector<SVector3D>& lights, int choice[2][3], SVector3D& normal);
 int scale(float x); // clamp x=+/-1 to [0,255]
+
+
+
 #endif //VISION_UTILITIES_H

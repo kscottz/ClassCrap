@@ -30,10 +30,11 @@ int main(int argc, char *argv[])
   readImage(mask,argv[7]);
   vector<Image*>::iterator iter;
   ImageColor* normalMap = NULL;
-  normalMap = createNormalMap(imgs,mask,lights);
+  Image* albedo = clone(imgs[0]);
+  normalMap = createNormalMap(imgs,mask,lights,albedo);
   writeImageColor(normalMap, argv[8]);
-  Image* albedo = new Image();
-  readImage(albedo,argv[9]);
+  cout << "Writing Albed: " << albedo << endl;
+  writeImage(albedo,argv[9]);
 
 
 

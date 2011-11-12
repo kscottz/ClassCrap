@@ -786,7 +786,7 @@ SVector3D findLightingVector( Image* img, int x, int y, float r)
   cout << fx << " " << fy << endl;
   retVal.x = fx/r;
   retVal.y = fy/r;
-  retVal.z = -1.0 * ( sqrt( (r*r-(fx*fx)-(fy*fy)) )/r);
+  retVal.z = -1.0* ( sqrt( (r*r-(fx*fx)-(fy*fy)) )/r);
   return retVal; 
 }
 /******************************************************************************************/ 
@@ -888,33 +888,29 @@ Image* createMask(vector<Image*> imgs)
   return retVal;
 }
 /******************************************************************************************/ 
-ImageColor * createNormalMap(vector<Image*> imgs, Image* mask, vector<SVector3D> lights)
+ImageColor * createNormalMap(std::vector<Image*> imgs, Image* mask, std::vector<SVector3D> lights, Image* albedoImg)
 {
   int w = getNCols(mask);
   int h = getNRows(mask);
   
   ImageColor* retVal = createColor(w,h);
+
   vector<Image*>::iterator imgIter;
   vector<SVector3D>::iterator lightIter;
-  // build the s matrix which is fixed we'll build it from all five sources so it is over
-  // determined and we don't have to do the search for the best solution. 
-  /* float S[5][3];
-  int count = 0;
-  for( lightIter = lights.begin();
-       lightIter != lights.end();
-       ++lightIter )
-    {
-      S[count][0] = lights->x;
-      S[count][1] = lights->y;
-      S[count][2] = lights->z;
-    }*/
+  float * albedoFloat = new float[w*h];
+  cout << "wh " << w*h << endl;
   //now we invert the s matrix 
   int idx[2][3]; // color index pair
+  int adx = 0; // albedo index
+  float amax = FLT_MIN;
+  float amin = FLT_MAX;
+
   for(int i=0;i<h;i++) //y 
     {
       for(int j=0;j<w;j++)//x
 	{
 	  int test = getPixel(mask,i,j);
+	  float albedo = 0;
 	  if(test > 0)// if we have an object
 	    {
 	      for( int k = 0;k < 3; k++) // reset our best values array. 
@@ -943,11 +939,27 @@ ImageColor * createNormalMap(vector<Image*> imgs, Image* mask, vector<SVector3D>
 		  count++;
 		  }*/
 	      SVector3D normal;
-	      float albedo = constructNormal(lights,idx,normal);
-	      setPixelColor(retVal,i,j,scale(normal.x),scale(normal.y),scale(normal.z));
-	      
+	      albedo = constructNormal(lights,idx,normal);
+	      setPixelColor(retVal,i,j,scale(normal.x),scale(normal.y),scale(normal.z));	      
 	    }// if test
+	  albedoFloat[adx] = albedo;
+	  if( albedo > amax )
+	    {
+	      amax = albedo;
+	    }
+	  if( albedo < amin )
+	    {
+	      amin = albedo;
+	    }
+	  adx++;
+
 	}
+    }
+  createAlbedoImage(w,h,amax,amin,albedoFloat,albedoImg );
+  if(NULL != albedoFloat)
+    {
+      cout << "Deleting" << endl; 
+      delete [] albedoFloat;
     }
   return retVal;
 }
@@ -1004,6 +1016,37 @@ int scale(float x) // clamp x=+/-1 to [0,255]
   float val = scale*255.00;
   int retVal = static_cast<int>(val);
   retVal = CLAMP(retVal,0,255); 
+  return retVal; 
+}
+/******************************************************************************************/ 
+void createAlbedoImage(int width, int height, float max, float min, float * data, Image* img)
+{
+  int idx = 0;
+  for(int i=0;i<height;i++)
+    {
+      for(int j=0;j<width;j++)
+	{
+
+	  int val = scaleFloat(data[idx],max,min);
+	  //cout << idx << " " << data[idx] << " " << val << endl;
+	  setPixel(img,i,j,val);
+	  idx++;
+	}
+    }
+}
+/******************************************************************************************/ 
+int scaleFloat(float a, float max, float min)
+{
+  int retVal = 0; 
+  float range = a-min;
+  float span = max-min;
+  float toInt = 0.00;
+  if( range > 0 &&  span > 0 )
+    {
+      toInt = 255.00*(range/span);
+    }
+  retVal = static_cast<int>(toInt);
+  retVal = CLAMP(retVal,0,255);
   return retVal; 
 }
 /******************************************************************************************/ 
