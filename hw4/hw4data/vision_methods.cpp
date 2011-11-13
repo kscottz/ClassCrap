@@ -786,7 +786,15 @@ SVector3D findLightingVector( Image* img, int x, int y, float r)
   cout << fx << " " << fy << endl;
   retVal.x = fx/r;
   retVal.y = fy/r;
-  retVal.z = -1.0* ( sqrt( (r*r-(fx*fx)-(fy*fy)) )/r);
+  retVal.z = 1.0* ( sqrt( (r*r-(fx*fx)-(fy*fy)) )/r);
+  float norm = sqrt( (retVal.x*retVal.x)+(retVal.y*retVal.y)+(retVal.z*retVal.z));
+  float vtf = ((float)v)/255.0;
+  cout << norm << " " << vtf << endl;
+  retVal.x = (retVal.x/norm)*vtf;
+  retVal.y = (retVal.y/norm)*vtf;
+  retVal.z = (retVal.z/norm)*vtf;
+  cout << retVal.x << " " << retVal.y << " " << retVal.z << endl;
+
   return retVal; 
 }
 /******************************************************************************************/ 
@@ -924,30 +932,50 @@ ImageColor * createNormalMap(std::vector<Image*> imgs,
 	    {
 	      for( int k = 0;k < 3; k++) // reset our best values array. 
 		{
-		  int intensity = getPixel(imgs[k],i,j);
-		  idx[0][k] = intensity;// color 
+		  //int intensity = getPixel(imgs[k],i,j);
+		  idx[0][k] = 0;// intensity;// color 
 		  idx[1][k] = k;// index
 		}
 
-	      /*	      int count = 0; // the color index
+	      int count = 0; // the color index
+	      int* ilist = new int[imgs.size()];
+	      int max = 0;
+	      int index = 0;
 	      for(imgIter = imgs.begin(); // the three brightest pixels
 		  imgIter!= imgs.end();
 		  ++imgIter)
 		{
-		  int intensity = getPixel((*imgIter),i,j);
-		  for( int k=0; k < 3; k++)
+		  int color = getPixel((*imgIter),i,j);
+		  ilist[count] = color;
+		  if( color > max )
 		    {
-		      if(intensity > idx[0][k] )
-			{
-			  idx[0][k] = intensity;
-			  idx[1][k] = count;
-			  break;
-			}
-			
+		      max = color;
+		      index = count;
+
 		    }
 		  count++;
-		  }*/
-
+		}	
+	      idx[0][0] = max;
+	      idx[1][0] = index;
+	      ilist[index] = 0;
+	      for( int k = 1; k <= 2; k++ )
+		{
+		  int best = 0;
+		  index = 0; 
+		  for( int l=0; l < imgs.size(); l++ )
+		    {		      
+		      if( ilist[l] > best )
+			{
+			  best = ilist[l];
+			  index = l;
+			}
+		    }
+		  ilist[index]=0;
+		  idx[0][k] = best;
+		  idx[1][k] = index;
+		}			         
+				  
+				    
 	      albedo = constructNormal(lights,idx,normal);
 	      setPixelColor(retVal,i,j,scale(normal.x),scale(normal.y),scale(normal.z));	      
 	    }// if test
@@ -996,11 +1024,13 @@ float constructNormal(vector<SVector3D>& lights, int choice[2][3], SVector3D& no
   S[1][2]= lights[(choice[1][2])].y;
   S[2][2]= lights[(choice[1][2])].z;
 
+  //  VEC_PRINT(I);
+  //MAT_PRINT_3X3(S);
   float S_INV[3][3];
   float det = 0.00;
   //  INVERT_3x3(S_INV,det,S);
   INVERT_3X3(S_INV,det,S);
-  if( det == 0.00 )
+   if( det == 0.00 )
     {
       cout << "FUCK!" << endl;
       MAT_PRINT_3X3(S);

@@ -108,4 +108,5 @@ clean:
 #image MAGIK! 
 convert:
 	mogrify -format png *.pgm
+	mogrify -format png *.ppm
 	open *.png
