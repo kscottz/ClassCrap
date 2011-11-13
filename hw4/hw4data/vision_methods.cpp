@@ -1188,11 +1188,13 @@ Image* calculateDepth(std::vector<SPoint2D>seeds, Image * mask, TGradImg gradien
     {
       cout << "Estimating Depth" << endl;
       TDynImg temp = estimateDepth(gradient,mask,*siter,w,h);
+      temp = filterDepth(temp,mask,w,h); 
       imgs.push_back(temp);
     }
   TDynImg final = aggregateDepth(imgs,mask,w,h);
-  //return vector2Img(final, w, h);
-  return vector2Img(imgs[0],w,h);
+ 
+  return vector2Img(final, w, h);
+  //return vector2Img(imgs[0],w,h);
 }
 /******************************************************************************************/ 
 TDynImg estimateDepth( TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h)
@@ -1216,6 +1218,7 @@ TDynImg estimateDepth( TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h
   depthBL(retVal,pqImg,mask,seed,w,h);
   cout << "Depth TR" << endl;
   depthTR(retVal,pqImg,mask,seed,w,h);
+
   return retVal;
 }
 /******************************************************************************************/ 
@@ -1247,8 +1250,10 @@ TDynImg aggregateDepth( std::vector<TDynImg> imgs, Image* mask, int w, int h )
 	    }
 	}
     }
+
   // normalize ... no need to divide
   retVal = filterDepth(retVal, mask, w, h);
+
   return retVal;
 }
 /******************************************************************************************/ 
