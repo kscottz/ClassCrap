@@ -1180,32 +1180,255 @@ TGradImg loadGradient(char* fname, int& w, int& h)
 /******************************************************************************************/ 
 Image* calculateDepth(std::vector<SPoint2D>seeds, Image * mask, TGradImg gradient, int w, int h)
 {
-  Image * retVal = new Image();
-  setSize(retVal,h,w);
-  setColors(retVal,255);
   vector<SPoint2D>::iterator siter;
   vector<TDynImg> imgs;
   for( siter = seeds.begin();
        siter != seeds.end();
        ++siter )
     {
-      TDynImg temp = estimateDepth(gradient,*siter,w,h);
+      cout << "Estimating Depth" << endl;
+      TDynImg temp = estimateDepth(gradient,mask,*siter,w,h);
       imgs.push_back(temp);
     }
-
+  TDynImg final = aggregateDepth(imgs,mask,w,h);
+  //return vector2Img(final, w, h);
+  return vector2Img(imgs[0],w,h);
+}
+/******************************************************************************************/ 
+TDynImg estimateDepth( TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h)
+{
+  cout << "Estimating Depth" << endl;
+  TDynImg retVal( h, vector<float> ( w ) );
+  for( int i=0; i < h; i++)
+    {
+      for( int j=0; j < w; j++ )
+	{
+	  retVal[i][j] = 0.00;
+	}
+    }
+  cout << "Initializing" << endl;
+  initializeDepth(retVal,pqImg,mask,seed,w,h);
+  cout << "Depth TR" << endl;
+  depthTR(retVal,pqImg,mask,seed,w,h);
+  cout << "Depth BR" << endl;
+  depthBR(retVal,pqImg,mask,seed,w,h);
+  cout << "Depth BL" << endl;
+  depthBL(retVal,pqImg,mask,seed,w,h);
+  cout << "Depth TR" << endl;
+  depthTR(retVal,pqImg,mask,seed,w,h);
   return retVal;
 }
 /******************************************************************************************/ 
-TDynImg estimateDepth( TGradImg& pqImg, SPoint2D seed, int w, int h)
+TDynImg aggregateDepth( std::vector<TDynImg> imgs, Image* mask, int w, int h )
 {
+  cout << "Aggregatign Depth" << endl;
   TDynImg retVal( h, vector<float> ( w ) );
+  for( int i=0; i < h; i++)
+    {
+      for( int j=0; j < w; j++ )
+	{
+	  retVal[i][j] = 0.00;
+	}
+    }
+  vector<TDynImg>::iterator iter;
+  for( int i=0; i < h; i++)// sum
+    {
+      for( int j=0; j < w; j++ )
+	{
+	  int test = getPixel(mask,i,j);
+	  if(test > 0 )
+	    {
+	      for( iter = imgs.begin();
+		   iter != imgs.end();
+		   ++iter )
+		{
+		  retVal[i][j] += (*iter)[i][j];
+		}
+	    }
+	}
+    }
+  // normalize ... no need to divide
+  retVal = filterDepth(retVal, mask, w, h);
   return retVal;
+}
+/******************************************************************************************/ 
+float clampFloat(float x, float low, float high)// scale to 0 to 1;
+{
+  float retVal = 0.00;
+  float span = high-low;
+  float val = x-low;
+  if( val >= 0.00 )
+    {
+      retVal = (x-low)/span;
+    }
+  return retVal;
+}
+/******************************************************************************************/ 
+TDynImg filterDepth(TDynImg& img, Image* mask, int w, int h)
+{
+  cout << "Filtering Depth" << endl;
+  TDynImg retVal( h, vector<float> ( w ) );
+  float max = FLT_MIN;
+  float min = FLT_MAX;
+  for( int i=0; i < h; i++)
+    {
+      for( int j=0; j < w; j++ )
+	{
+	  int test = getPixel(mask,i,j);
+	  if(test > 0 )
+	    {
+	      if( img[i][j] > max )
+		{
+		  max = img[i][j];
+		}
+	      if( img[i][j] < min )
+		{
+		  min = img[i][j];
+		}
+	    }
+	}
+    }
+  for( int i=0; i < h; i++)
+    {
+      for( int j=0; j < w; j++ )
+	{
+	  int test = getPixel(mask,i,j);
+	  if(test > 0 )
+	    {
+	      retVal[i][j] = clampFloat(img[i][j],min,max);
+	    }
+	}
+    }
+  return retVal; 
 }
 /******************************************************************************************/ 
 Image* vector2Img(TDynImg& input, int w, int h)
 {
+  cout << "Converting Depth" << endl;
   Image* retVal = NULL;
   retVal = new Image(); 
+  setSize(retVal,h,w);
+  setColors(retVal,255);
+  for( int i=0; i < h; i++)
+    {
+      for( int j=0; j < w; j++ )
+	{
+	  int color = scaleFloat(input[i][j],1.00,0.00);
+	  setPixel(retVal,i,j,color); 
+	}
+    }  
   return retVal; 
+}
+/******************************************************************************************/ 
+void initializeDepth(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h)
+{
+  // note this is in img[y][x]
+  img[seed.x][seed.y] = 0.00;
+  int test = 0; 
+  for( int i=seed.y+1; i < h; i++) // going down
+    {
+      test = getPixel(mask,i,seed.x);
+      if( test > 0 )
+	{      
+	  img[i][seed.x] = img[i-1][seed.x] + pqImg[i][seed.x].p;  
+	}
+    }
+
+  for( int i=seed.y-1; i >= 0; i--) // going up
+    {
+      test = getPixel(mask,i,seed.x);
+      if( test > 0 )
+	{      
+	  img[i][seed.x] = img[i+1][seed.x] + pqImg[i][seed.x].p;  
+	}
+    }
+
+  for( int i=seed.x+1; i < w; i++) // going right
+    {
+      test = getPixel(mask,seed.y,i);
+      if( test > 0 )
+	{      
+	  img[i][seed.x] = img[seed.y][i-1] + pqImg[seed.y][i].q;  
+	}
+    }
+
+  for( int i=seed.x-1; i >= 0; i--) // going left
+    {
+      test = getPixel(mask,seed.y,i);
+      if( test > 0 )
+	{      
+	  img[i][seed.x] = img[seed.y][i+1] + pqImg[seed.y][i].q;  
+	}
+    }
+  // we could probably break on the second gradient case but whatev
+
+
+}
+/******************************************************************************************/ 
+void depthTR(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h)
+{
+  // this is following the notes. 
+  for( int j=seed.x+1; j < w; j++) // go right 
+    {
+      for(int i=seed.y-1; i >= 0; i--) // y go up
+	{
+	  int test = getPixel(mask,i,j);
+	  if(test > 0 )
+	    {
+	      img[i][j] = (0.5*(img[i][j-1]+pqImg[i][j].p))+
+		(0.5*(img[i+1][j]+pqImg[i][j].q));
+	    }
+	}
+    }
+}
+/******************************************************************************************/ 
+void depthBR(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h)
+{
+  // this is following the notes. 
+  for( int j=seed.x+1; j < w; j++) // x go right
+    {
+      for(int i=seed.y+1; i < h; i++ )//y go down
+	{
+	  int test = getPixel(mask,i,j);
+	  if(test > 0 )
+	    {
+	      img[i][j] = (0.5*(img[i][j-1]+pqImg[i][j].p))+
+		(0.5*(img[i-1][j]-pqImg[i][j].q));
+	    }
+	}
+    }
+}
+/******************************************************************************************/ 
+void depthBL(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h)
+{
+  // this is following the notes. 
+  for( int j=seed.x-1; j >= 0; j--) // x go left
+    {
+      for(int i=seed.y+1; i < h; i++ )//y go down
+	{
+	  int test = getPixel(mask,i,j);
+	  if(test > 0 )
+	    {
+	      img[i][j] = (0.5*(img[i-1][j]+pqImg[i][j].q))+
+		(0.5*(img[i][j+1]+pqImg[i][j].p));//
+	    }
+	}
+    }
+}
+/******************************************************************************************/ 
+void depthTL(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h)
+{
+  for( int j=seed.x-1; j >= 0; j--) // x go left
+    {
+      for(int i=seed.y-1; i >= 0; i-- )//y go up
+	{
+	  int test = getPixel(mask,i,j);
+	  if(test > 0 )
+	    {
+	      img[i][j] = (0.5*(img[i+1][j]+pqImg[i][j].p))+
+		(0.5*(img[i][j+1]+pqImg[i][j].p));
+	    }
+	}
+    }
 }
 /******************************************************************************************/ 

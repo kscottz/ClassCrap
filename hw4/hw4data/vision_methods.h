@@ -107,7 +107,21 @@ int scale(float x); // clamp x=+/-1 to [0,255]
 std::vector<SPoint2D> loadSeedPoints(char* fname); 
 TGradImg loadGradient(char* fname, int& w, int& h);
 Image* calculateDepth(std::vector<SPoint2D>seeds, Image * mask, TGradImg gradient, int w, int h); 
-TDynImg estimateDepth( TGradImg & pqImg, SPoint2D seed, int w, int h);
+TDynImg estimateDepth( TGradImg & pqImg, Image* mask, SPoint2D seed, int w, int h);
+TDynImg aggregateDepth( std::vector<TDynImg> imgs, Image* mask, int w, int h );// go through and add all the depth images and rescale
+ 
+float clampFloat(float x, float low, float high);// scale to 0 to 1;
+
+TDynImg filterDepth(TDynImg& img, Image* mask, int w, int h);
+
+void initializeDepth(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h);
+void depthTR(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h);
+void depthBR(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h);
+void depthBL(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h);
+void depthTL(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h);
+
+
+
 Image* vector2Img(TDynImg & input, int w, int h); //find max and min, clamp copy
 
 
