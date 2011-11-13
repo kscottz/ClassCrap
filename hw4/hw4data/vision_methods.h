@@ -10,6 +10,12 @@
 /*********************************************************/
 /********************************************************/
 
+struct SPoint2D
+{
+  int x;
+  int y;
+};
+
 struct SVector3D
 {
   float x;
@@ -53,6 +59,10 @@ struct SObjectLabel
   int m_maxY;
 };
 
+typedef std::vector< std::vector<float> > TDynImg;
+
+typedef std::vector< std::vector<Gradient> > TGradImg;
+
 int threshold(Image* img, int thresh);
 int connect_components(Image* img);
 bool set_intersection(std::set<int>& a, std::set<int>& b);
@@ -83,7 +93,8 @@ Image* createMask(std::vector<Image*> imgs);
 int scaleFloat(float a, float max, float min); 
 Gradient normal2grad(SVector3D norm); 
 std::vector<Gradient> normals2grads( std::vector<SVector3D>& normals);
-int saveGradients(std::vector<Gradient>& gradients, char* fname);
+
+int saveGradients(std::vector<Gradient>& gradients, int w, int h, char* fname);
 void createAlbedoImage(int width, int height, float max, float min, float * data, Image* img);
 ImageColor * createNormalMap(std::vector<Image*> imgs, 
 			     Image* mask, 
@@ -92,6 +103,12 @@ ImageColor * createNormalMap(std::vector<Image*> imgs,
 			     std::vector<SVector3D>& normals);
 float constructNormal(std::vector<SVector3D>& lights, int choice[2][3], SVector3D& normal);
 int scale(float x); // clamp x=+/-1 to [0,255]
+
+std::vector<SPoint2D> loadSeedPoints(char* fname); 
+TGradImg loadGradient(char* fname, int& w, int& h);
+Image* calculateDepth(std::vector<SPoint2D>seeds, Image * mask, TGradImg gradient, int w, int h); 
+TDynImg estimateDepth( TGradImg & pqImg, SPoint2D seed, int w, int h);
+Image* vector2Img(TDynImg & input, int w, int h); //find max and min, clamp copy
 
 
 

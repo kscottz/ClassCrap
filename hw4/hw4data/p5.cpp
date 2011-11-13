@@ -9,41 +9,30 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-  char * orig  = argv[1];
-  Image * inImg = new Image();
-  int retVal = readImage(inImg,orig);
-
-  char * accfname  = argv[2];
-  Image * acc = new Image();
-  retVal = readImage(acc,accfname);
-
-  char * edgefname  = argv[3];
-  Image * edge  = new Image();
-  retVal = readImage(edge,edgefname);
-
-  int thresh = atoi(argv[4]);
-
-  char * output  = argv[5];
-  Image* outImg = NULL;
-  
-  //threshold(edge,128);
-  threshold(acc,thresh);
-
-  Image * reconstruct = NULL; 
-  reconstruct = clone(edge);
-  hough_reconstruct(acc,reconstruct);
-  reconstruct = dilate(reconstruct);
-  outImg = logicalAnd(edge,reconstruct);
-  
-  retVal = writeImage(outImg,output);
-  if( retVal )
+  if(argc != 5 )
     {
-      //cout << "Error saving file: " << oname << endl;
-      return retVal;
+      cout << "Argument error" << endl;
+      return 1;
     }
-  cleanup(edge);
-  cleanup(reconstruct);
-  cleanup(acc);
-  cleanup(outImg);
-  return 0;
+
+  char* gradFile = argv[1];
+  int w = 0;
+  int h = 0;
+  TGradImg gradient = loadGradient(gradFile,w,h);
+  cout << "Loaded gradient" << endl; 
+  vector<SPoint2D> seeds;
+  seeds = loadSeedPoints(argv[2]);
+
+  Image* mask = new Image();
+  readImage(mask,argv[3]);
+
+  Image* depth = NULL; 
+
+  depth = calculateDepth(seeds,mask,gradient,w,h); 
+  
+  writeImage(depth,argv[4]);
+
+  cleanup(mask);
+
+  return 0; 
 }

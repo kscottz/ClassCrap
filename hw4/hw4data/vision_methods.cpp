@@ -1083,14 +1083,16 @@ vector<Gradient> normals2grads(vector<SVector3D>& normals)
   return retVal;
 }
 /******************************************************************************************/ 
-int saveGradients(std::vector<Gradient>& gradients, char* fname)
+int saveGradients(std::vector<Gradient>& gradients, int w, int h, char* fname)
 {
   int retVal = 0;
   ofstream myFile;
   myFile.open(fname);
   if(myFile.good())
     {
+      myFile << w << " " << h << endl;
       vector<Gradient>::iterator iter;
+
       for(iter = gradients.begin(); iter != gradients.end(); ++iter)
 	{
 	  retVal++;
@@ -1103,6 +1105,107 @@ int saveGradients(std::vector<Gradient>& gradients, char* fname)
       retVal = -1;
     }
   myFile.close();
+  return retVal; 
+}
+/******************************************************************************************/ 
+vector<SPoint2D> loadSeedPoints(char* fname)
+{
+  vector<SPoint2D> retVal;
+  ifstream myFile;
+  int sz = 1024;
+  char* buff = new char[sz];
+  myFile.open(fname);
+  if(myFile.is_open())
+    {
+      int derp;
+      while(!myFile.eof())
+	{
+	  myFile.getline(buff,sz);
+	  string sbuf(buff);
+	  if( sbuf.length() > 0 )
+	    {
+	      stringstream ss(sbuf,stringstream::in);
+	      SPoint2D data;
+	      ss  >> data.x 
+		  >> data.y;
+	      retVal.push_back(data);
+	    }
+	}
+    }
+  if( NULL != buff )
+    delete [] buff;
+
+  return retVal;
+}
+/******************************************************************************************/ 
+TGradImg loadGradient(char* fname, int& w, int& h)
+{
+
+  ifstream myFile;
+  int sz = 1024;
+  char* buff = new char[sz];
+  myFile.open(fname);
+  if(myFile.is_open())
+    {
+      int derp;
+      myFile.getline(buff,sz);
+      string tbuf(buff);
+      if( tbuf.length() > 0 )
+	{
+	  stringstream temp(tbuf,stringstream::in);
+	  temp  >> w 
+		>> h;
+	}
+    }
+  
+  TGradImg retVal( h, vector<Gradient> ( w ) );
+  for(int i=0;i<h;i++)
+    {
+      for(int j=0;j<w;j++)
+	{
+	  myFile.getline(buff,sz);
+	  string sbuf(buff);
+	  stringstream ss(sbuf,stringstream::in);
+	  Gradient data;
+	  ss  >> data.p 
+	      >> data.q;
+	  retVal[i][j] = data;
+	}
+    }
+	
+  if( NULL != buff )
+    delete [] buff;
+  return retVal;
+}
+/******************************************************************************************/ 
+Image* calculateDepth(std::vector<SPoint2D>seeds, Image * mask, TGradImg gradient, int w, int h)
+{
+  Image * retVal = new Image();
+  setSize(retVal,h,w);
+  setColors(retVal,255);
+  vector<SPoint2D>::iterator siter;
+  vector<TDynImg> imgs;
+  for( siter = seeds.begin();
+       siter != seeds.end();
+       ++siter )
+    {
+      TDynImg temp = estimateDepth(gradient,*siter,w,h);
+      imgs.push_back(temp);
+    }
+
+  return retVal;
+}
+/******************************************************************************************/ 
+TDynImg estimateDepth( TGradImg& pqImg, SPoint2D seed, int w, int h)
+{
+  TDynImg retVal( h, vector<float> ( w ) );
+  return retVal;
+}
+/******************************************************************************************/ 
+Image* vector2Img(TDynImg& input, int w, int h)
+{
+  Image* retVal = NULL;
+  retVal = new Image(); 
   return retVal; 
 }
 /******************************************************************************************/ 

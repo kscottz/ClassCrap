@@ -34,7 +34,10 @@ int main(int argc, char *argv[])
   vector<SVector3D> normals;
   normalMap = createNormalMap(imgs,mask,lights,albedo,normals);
   vector<Gradient> grads = normals2grads(normals); 
-  saveGradients(grads,argv[10]);
+
+  int w = getNCols(imgs[0]);
+  int h = getNRows(imgs[0]);
+  saveGradients(grads,w,h,argv[10]);
   writeImageColor(normalMap, argv[8]);
   writeImage(albedo,argv[9]);
 
