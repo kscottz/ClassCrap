@@ -976,7 +976,18 @@ ImageColor * createNormalMap(std::vector<Image*> imgs,
 		}			         
 				  
 				    
-	      albedo = constructNormal(lights,idx,normal);
+	      bool result = constructNormal(lights,idx,normal,albedo);
+	      if( result )
+		{
+		  idx[0][0] = getPixel(imgs[0],i,j);
+		  idx[0][1] = getPixel(imgs[1],i,j);
+		  idx[0][2] = getPixel(imgs[2],i,j);
+		  idx[1][0] = 0;
+		  idx[1][1] = 1;
+		  idx[1][2] = 2;
+		  constructNormal(lights,idx,normal,albedo);
+		  
+		}
 	      setPixelColor(retVal,i,j,scale(normal.x),scale(normal.y),scale(normal.z));	      
 	    }// if test
 	  
@@ -1004,26 +1015,16 @@ ImageColor * createNormalMap(std::vector<Image*> imgs,
   return retVal;
 }
 /******************************************************************************************/
-float constructNormal(vector<SVector3D>& lights, int choice[2][3], SVector3D& normal)
+bool constructNormal(vector<SVector3D>& lights, int choice[2][3], SVector3D& normal, float& albedo)
 {
+  bool retVal = false;
   float I[3];
   I[0] = choice[0][0];
   I[1] = choice[0][1];
   I[2] = choice[0][2];
 
   float S[3][3];
-  /* S[0][0]= lights[(choice[1][0])].x;
-  S[1][0]= lights[(choice[1][0])].y;
-  S[2][0]= lights[(choice[1][0])].z;
- 
-  S[0][1]= lights[(choice[1][1])].x;
-  S[1][1]= lights[(choice[1][1])].y;
-  S[2][1]= lights[(choice[1][1])].z;
-  
-  S[0][2]= lights[(choice[1][2])].x;
-  S[1][2]= lights[(choice[1][2])].y;
-  S[2][2]= lights[(choice[1][2])].z;
-*/
+
   S[0][0]= lights[(choice[1][0])].x;
   S[0][1]= lights[(choice[1][0])].y;
   S[0][2]= lights[(choice[1][0])].z;
@@ -1044,22 +1045,29 @@ float constructNormal(vector<SVector3D>& lights, int choice[2][3], SVector3D& no
   INVERT_3X3(S_INV,det,S);
    if( det == 0.00 )
     {
+      retVal = true;
       cout << "FUCK!" << endl;
       MAT_PRINT_3X3(S);
       VEC_PRINT(I);
       IDENTIFY_MATRIX_3X3(S_INV);
+      normal.x = 0;
+      normal.y = 0;
+      normal.z = 0; 
+      albedo = 0;
+      return retVal;
     }
   float M[3];
   VEC_ZERO(M);
   MAT_DOT_VEC_3X3(M,S_INV,I);
   float length = 0.00;
   VEC_LENGTH(length,M);
-  float albedo = length*PI;
+  albedo = length*PI;
   normal.x = M[0]/length;
   normal.y = M[1]/length;
   normal.z = M[2]/length;
   // VEC_PRINT(M);
-  return albedo; 
+  return retVal;
+  //return albedo; 
 
 }
 /******************************************************************************************/ 
@@ -1109,6 +1117,9 @@ Gradient normal2grad(SVector3D norm)
   Gradient retVal;
   retVal.p = norm.x/norm.z;
   retVal.q = norm.y/norm.z; 
+  float d = sqrt( (retVal.p*retVal.p)+(retVal.q*retVal.q));
+  retVal.p = retVal.p/d;
+  retVal.q = retVal.q/d;
   return retVal;
 }
 /******************************************************************************************/ 
@@ -1259,7 +1270,7 @@ TDynImg estimateDepth( TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h
   cout << "Depth BL" << endl;
   depthBL(retVal,pqImg,mask,seed,w,h);
   cout << "Depth TR" << endl;
-  depthTR(retVal,pqImg,mask,seed,w,h);
+  depthTL(retVal,pqImg,mask,seed,w,h);
 
   return retVal;
 }
@@ -1395,7 +1406,7 @@ void initializeDepth(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, 
       test = getPixel(mask,seed.y,i);
       if( test > 0 )
 	{      
-	  img[i][seed.x] = img[seed.y][i-1] + pqImg[seed.y][i].q;  
+	  img[seed.y][i] = img[seed.y][i-1] + pqImg[seed.y][i].q;  
 	}
     }
 
@@ -1404,7 +1415,7 @@ void initializeDepth(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, 
       test = getPixel(mask,seed.y,i);
       if( test > 0 )
 	{      
-	  img[i][seed.x] = img[seed.y][i+1] + pqImg[seed.y][i].q;  
+	  img[seed.y][i] = img[seed.y][i+1] + pqImg[seed.y][i].q;  
 	}
     }
   // we could probably break on the second gradient case but whatev
@@ -1465,15 +1476,17 @@ void depthBL(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, i
 /******************************************************************************************/ 
 void depthTL(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h)
 {
-  for( int j=seed.x-1; j >= 0; j--) // x go left
+
+  for(int i=seed.y-1; i >= 0; i--) // y go up
     {
-      for(int i=seed.y-1; i >= 0; i-- )//y go up
+      for( int j=seed.x-1; j >= 0; j--) // x go left 
 	{
 	  int test = getPixel(mask,i,j);
 	  if(test > 0 )
 	    {
-	      img[i][j] = (0.5*(img[i+1][j]+pqImg[i][j].p))+
-		(0.5*(img[i][j+1]+pqImg[i][j].p));
+	      img[i][j] = (0.5*(img[i][j+1]+pqImg[i][j].p))+
+		(0.5*(img[i+1][j]+pqImg[i][j].q));
+
 	    }
 	}
     }

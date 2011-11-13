@@ -101,7 +101,7 @@ ImageColor * createNormalMap(std::vector<Image*> imgs,
 			     std::vector<SVector3D> lights, 
 			     Image* albedoImg,
 			     std::vector<SVector3D>& normals);
-float constructNormal(std::vector<SVector3D>& lights, int choice[2][3], SVector3D& normal);
+bool constructNormal(std::vector<SVector3D>& lights, int choice[2][3], SVector3D& normal,float& albedo);
 int scale(float x); // clamp x=+/-1 to [0,255]
 
 std::vector<SPoint2D> loadSeedPoints(char* fname); 
