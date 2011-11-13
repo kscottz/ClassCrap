@@ -1012,7 +1012,7 @@ float constructNormal(vector<SVector3D>& lights, int choice[2][3], SVector3D& no
   I[2] = choice[0][2];
 
   float S[3][3];
-  S[0][0]= lights[(choice[1][0])].x;
+  /* S[0][0]= lights[(choice[1][0])].x;
   S[1][0]= lights[(choice[1][0])].y;
   S[2][0]= lights[(choice[1][0])].z;
  
@@ -1022,6 +1022,18 @@ float constructNormal(vector<SVector3D>& lights, int choice[2][3], SVector3D& no
   
   S[0][2]= lights[(choice[1][2])].x;
   S[1][2]= lights[(choice[1][2])].y;
+  S[2][2]= lights[(choice[1][2])].z;
+*/
+  S[0][0]= lights[(choice[1][0])].x;
+  S[0][1]= lights[(choice[1][0])].y;
+  S[0][2]= lights[(choice[1][0])].z;
+ 
+  S[1][0]= lights[(choice[1][1])].x;
+  S[1][1]= lights[(choice[1][1])].y;
+  S[1][2]= lights[(choice[1][1])].z;
+  
+  S[2][0]= lights[(choice[1][2])].x;
+  S[2][1]= lights[(choice[1][2])].y;
   S[2][2]= lights[(choice[1][2])].z;
 
   //  VEC_PRINT(I);
