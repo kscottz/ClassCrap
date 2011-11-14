@@ -34,12 +34,12 @@ int main(int argc, char *argv[])
   vector<SObjectLabel>::iterator iter;
   for( iter = labels.begin(); iter != labels.end(); ++iter)
     {
-      cout << iter->m_maxX << " " << iter->m_minX << " "
-	   << iter->m_maxY << " " << iter->m_minY << endl;
+      //      cout << iter->m_maxX << " " << iter->m_minX << " "
+      //  << iter->m_maxY << " " << iter->m_minY << endl;
 
       float a = (float)iter->m_area;
-      cout << (iter->m_maxX - iter->m_minX)/2.00 << " " << (iter->m_maxY - iter->m_minY)/2.00 << endl;
-      cout << sqrt((a/3.1415962));
+      //cout << (iter->m_maxX - iter->m_minX)/2.00 << " " << (iter->m_maxY - iter->m_minY)/2.00 << endl;
+      //cout << sqrt((a/3.1415962));
     }
 
 
@@ -48,21 +48,18 @@ int main(int argc, char *argv[])
   myFile.open(oname);
   if(myFile.good())
     {
-      //vector<SObjectLabel>::iterator iter;
+      vector<SObjectLabel>::iterator iter;
       for(iter = labels.begin(); iter != labels.end(); ++iter)
 	{
 	  float a = (float)iter->m_area;
 	  myFile << iter->m_y_pos << " " 
 		 << iter->m_x_pos << " " 
-	         << sqrt(a/3.1415962)
+	         << sqrt(a/PI)
 		 << endl; 
 	}
     }
   myFile.close();
 
-
-
-  retVal = writeImage(inImg,"theresult.pgm");
   if( retVal )
     {
       cout << "Error saving file: " << oname << endl;

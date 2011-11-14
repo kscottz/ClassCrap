@@ -99,7 +99,7 @@ vision_methods.o: vision_methods.cpp vision_methods.h
 # 'make submit' creates a tar of all files in the directory
 # NOTE 1: It also runs 'make clean' before submission.
  submit: clean
-	tar -czvf $(UNI)-hw4.tar.gz $(P1SRC) $(P2SRC) $(P3SRC) $(P4SRC) $(P5SRC) $(UTILS) $(UTILSH) $(METHODS) vase_seed.txt sphere_seed.txt Makefile README
+	tar -czvf $(UNI)-hw4.tar.gz $(P1SRC) $(P2SRC) $(P3SRC) $(P4SRC) $(P5SRC) $(UTILS) $(UTILSH) $(METHODS) *.h *.cpp *.tex vase_seed.txt sphere_seed.txt Makefile README.txt *.pgm 
 
 # 'make clean' removes all output and temporary files
 clean:

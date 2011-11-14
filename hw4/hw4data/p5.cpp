@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
   int w = 0;
   int h = 0;
   TGradImg gradient = loadGradient(gradFile,w,h);
-  cout << "Loaded gradient" << endl; 
+
   vector<SPoint2D> seeds;
   seeds = loadSeedPoints(argv[2]);
 

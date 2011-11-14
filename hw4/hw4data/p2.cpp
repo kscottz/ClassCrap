@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
       readImage(img,imgName);
       SVector3D best; 
       best = findLightingVector(img,x,y,r);
-      cout << "For " << imgName << " got " << best.x << " " << best.y << " " << best.z << endl;
+      //cout << "For " << imgName << " got " << best.x << " " << best.y << " " << best.z << endl;
       results.push_back(best);
       cleanup(img);
     }
