@@ -1352,6 +1352,7 @@ TDynImg filterDepth(TDynImg& img, Image* mask, int w, int h)
   return retVal; 
 }
 /******************************************************************************************/ 
+// calculate on theta 
 Image* vector2Img(TDynImg& input, int w, int h)
 {
   Image* retVal = NULL;
@@ -1379,7 +1380,7 @@ void initializeDepth(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, 
       test = getPixel(mask,i,seed.x);
       if( test > 0 )
 	{      
-	  img[i][seed.x] = img[i-1][seed.x] + pqImg[i][seed.x].p;  
+	  img[i][seed.x] = img[i-1][seed.x] - pqImg[i][seed.x].q;  
 	}
     }
 
@@ -1388,7 +1389,7 @@ void initializeDepth(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, 
       test = getPixel(mask,i,seed.x);
       if( test > 0 )
 	{      
-	  img[i][seed.x] = img[i+1][seed.x] + pqImg[i][seed.x].p;  
+	  img[i][seed.x] = img[i+1][seed.x] + pqImg[i][seed.x].q;  
 	}
     }
 
@@ -1397,7 +1398,7 @@ void initializeDepth(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, 
       test = getPixel(mask,seed.y,i);
       if( test > 0 )
 	{      
-	  img[seed.y][i] = img[seed.y][i-1] + pqImg[seed.y][i].q;  
+	  img[seed.y][i] = img[seed.y][i-1] - pqImg[seed.y][i].p;  
 	}
     }
 
@@ -1406,7 +1407,7 @@ void initializeDepth(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, 
       test = getPixel(mask,seed.y,i);
       if( test > 0 )
 	{      
-	  img[seed.y][i] = img[seed.y][i+1] + pqImg[seed.y][i].q;  
+	  img[seed.y][i] = img[seed.y][i+1] + pqImg[seed.y][i].p;  
 	}
     }
   // we could probably break on the second gradient case but whatev
@@ -1428,7 +1429,7 @@ void depthTR(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, i
 	      //	      img[i][j] = (0.5*(img[i][j-1]+pqImg[i][j].p))+ // get the x to the left 
 	      //	(0.5*(img[i+1][j]+pqImg[i][j].q)); // and the y below
 	      img[i][j] = (0.5*(img[i][j-1]-pqImg[i][j].p))+ // get the x to the left 
-		(0.5*(img[i+1][j]+pqImg[i+1][j].q)); // and the y below
+		(0.5*(img[i+1][j]+pqImg[i][j].q)); // and the y below
 
 	    }
 	}
@@ -1442,11 +1443,12 @@ void depthBR(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, i
 	{
 	  for( int j=seed.x+1; j < w; j++) // x go right
 	    {
-	      
+	      // go against y - 
+	      // go with x .... or vice versa. 
 	      int test = getPixel(mask,i,j);
 	      if(test > 0 )
 		{
-		  img[i][j] = (0.5*(img[i][j-1]+pqImg[i][j].p))+ // get the x to the left 
+		  img[i][j] = (0.5*(img[i][j-1]-pqImg[i][j].p))+ // get the x to the left 
 		    (0.5*(img[i-1][j]-pqImg[i][j].q)); // and the y above
 		}
 	    }
@@ -1465,7 +1467,7 @@ void depthBL(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, i
 	      if(test > 0 )
 		{
 		  img[i][j] = (0.5*(img[i][j+1]+pqImg[i][j].p)) + // the x to the right 
-		    (0.5*(img[i-1][j]+pqImg[i][j].q));	// the y above	
+		    (0.5*(img[i-1][j]-pqImg[i][j].q));	// the y above	
 		}
 	    }
 	}
