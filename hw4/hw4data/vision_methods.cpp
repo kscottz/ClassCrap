@@ -932,12 +932,12 @@ ImageColor * createNormalMap(std::vector<Image*> imgs,
 	    {
 	      for( int k = 0;k < 3; k++) // reset our best values array. 
 		{
-		  //int intensity = getPixel(imgs[k],i,j);
-		  idx[0][k] = 0;// intensity;// color 
-		  idx[1][k] = k;// index
+		  int intensity = getPixel(imgs[k],i,j);
+		  idx[0][k] = intensity;// color 
+		  idx[1][k] = k;
 		}
 
-	      int count = 0; // the color index
+	      /*	      int count = 0; // the color index
 	      int* ilist = new int[imgs.size()];
 	      int max = 0;
 	      int index = 0;
@@ -974,7 +974,7 @@ ImageColor * createNormalMap(std::vector<Image*> imgs,
 		  idx[0][k] = best;
 		  idx[1][k] = index;
 		}			         
-				  
+	      */		  
 				    
 	      bool result = constructNormal(lights,idx,normal,albedo);
 	      if( result )
