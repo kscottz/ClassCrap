@@ -1,0 +1,73 @@
+\documentclass{article}
+
+\usepackage{fullpage} % Include this if you want to cram lots of things on a page
+ 
+\usepackage{amsmath} % these are standard macro packages of the American Mathematical Society
+\usepackage{amssymb}
+\usepackage{hyperref}
+%\usepackage{stmaryrd}
+
+\usepackage{epsfig} % if you want figures
+
+%\usepackage{fancyhdr} % These 4 lines are needed to set up the running  header
+%\fancyhead[LE,RO]{Katherine Scott - Homework 1}
+%\fancyhead[RE,LO]{\thepage}
+%\pagestyle{fancy}
+
+\newcommand{\matlab}[1]
+{\centerline{\parbox{.9\textwidth}{\noindent\textsc{\bf MATLAB:} #1}}}
+
+\newcommand{\code}[1]{\texttt{#1}}
+
+\newcommand {\x}{\V{x}}
+\newcommand {\y}{\V{y}}
+\newcommand {\V}[1]{\mbox{\boldmath$#1$}}
+% To add some paragraph space between lines.
+% This also tells LaTeX to preferably break a page on one of these gaps
+% if there is a needed pagebreak nearby.
+\newcommand{\blankline}{\quad\pagebreak[2]}
+
+\begin{document}
+\title{Computer Vision: Homework 4}
+
+\author{Katherine A. Scott}
+\maketitle
+\mbox{}
+\begin{center}
+\href{mailto:katherineAScott@gmail.com}{kas2221@columbia.edu}
+
+\end{center}
+\section{Problem 1}
+\subsection{Part A}
+\[
+img(i,j)=\alpha^{\prime\prime} +2\alpha^{\prime} + A(c+k)+Bf 
+\]
+This means the total number of calculations (ignoring the calculations need to start a new row) is $4MN$ additions and $3MN$ additions. For large images the setup cost is negligible and these terms dominate. 
+\section{Problem 2}
+Given the Hough equation 
+\[
+0 = x\sin{\theta}-y\cos{\theta}+\rho
+\]
+we rearrange to get:
+\[
+\rho = y\cos{\theta} - x\sin{\theta}
+\]
+Now we want to get this in the form of $y=A\cos{(\theta+\phi)}$ so we can rationalize about the underlying sinusoid. We convert $x$ and $y$ to polar coordinates, namely $x=r\cos{\phi}$ and $y=r\sin{\phi}$ to get:
+\[
+\rho = r \cos{\theta}\sin{\phi}-r\sin{\theta}\cos{\phi}
+\]
+We now use the following trig identity:
+\[
+\sin{(\theta-\beta)}=\sin{\theta}\cos{\beta}-\cos{\theta}\sin{\beta}
+\]
+Which yields (replacing r with its true value):
+\[
+\rho = \sqrt{x^{2}+y^{2}}
+\sin{(\phi-\theta)}
+\]
+Where
+\[
+\phi = cos^{-1}{(\frac{x}{\sqrt{x^{2}+y^{2}}})}
+\]
+It is clear from this equation that in Hough space $x$ and $y$ directly relate to the phase and amplitude of the resulting sinusoid, with the length of the point from the origin relating to the amplitude and the angle from y-axis relating to the phase shift. The period/frequency of the sinusoid is completely independent of the $x$ and $y$ values.
+\end{document}

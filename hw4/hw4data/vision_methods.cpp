@@ -782,18 +782,18 @@ SVector3D findLightingVector( Image* img, int x, int y, float r)
     }
   float fx = 1.00*((float)vx-x);
   float fy = 1.00*((float)vy-y);
-  cout << x << " " << y << " " << vx << " " << vy << endl;
-  cout << fx << " " << fy << endl;
+  //cout << x << " " << y << " " << vx << " " << vy << endl;
+  //cout << fx << " " << fy << endl;
   retVal.x = fx/r;
   retVal.y = fy/r;
   retVal.z = 1.0* ( sqrt( (r*r-(fx*fx)-(fy*fy)) )/r);
   float norm = sqrt( (retVal.x*retVal.x)+(retVal.y*retVal.y)+(retVal.z*retVal.z));
   float vtf = ((float)v)/255.0;
-  cout << norm << " " << vtf << endl;
+  //cout << norm << " " << vtf << endl;
   retVal.x = (retVal.x/norm)*vtf;
   retVal.y = (retVal.y/norm)*vtf;
   retVal.z = (retVal.z/norm)*vtf;
-  cout << retVal.x << " " << retVal.y << " " << retVal.z << endl;
+  //cout << retVal.x << " " << retVal.y << " " << retVal.z << endl;
 
   return retVal; 
 }
@@ -910,7 +910,7 @@ ImageColor * createNormalMap(std::vector<Image*> imgs,
   vector<Image*>::iterator imgIter;
   vector<SVector3D>::iterator lightIter;
   float * albedoFloat = new float[w*h];
-  cout << "wh " << w*h << endl;
+  //cout << "wh " << w*h << endl;
   //now we invert the s matrix 
   int idx[2][3]; // color index pair
   int adx = 0; // albedo index
@@ -1009,7 +1009,6 @@ ImageColor * createNormalMap(std::vector<Image*> imgs,
   
   if(NULL != albedoFloat)
     {
-      cout << "Deleting" << endl; 
       delete [] albedoFloat;
     }
   return retVal;
@@ -1041,14 +1040,13 @@ bool constructNormal(vector<SVector3D>& lights, int choice[2][3], SVector3D& nor
   //MAT_PRINT_3X3(S);
   float S_INV[3][3];
   float det = 0.00;
-  //  INVERT_3x3(S_INV,det,S);
+
   INVERT_3X3(S_INV,det,S);
    if( det == 0.00 )
     {
       retVal = true;
-      cout << "FUCK!" << endl;
-      MAT_PRINT_3X3(S);
-      VEC_PRINT(I);
+      //MAT_PRINT_3X3(S);
+      //VEC_PRINT(I);
       IDENTIFY_MATRIX_3X3(S_INV);
       normal.x = 0;
       normal.y = 0;
@@ -1065,9 +1063,7 @@ bool constructNormal(vector<SVector3D>& lights, int choice[2][3], SVector3D& nor
   normal.x = M[0]/length;
   normal.y = M[1]/length;
   normal.z = M[2]/length;
-  // VEC_PRINT(M);
   return retVal;
-  //return albedo; 
 
 }
 /******************************************************************************************/ 
@@ -1090,7 +1086,6 @@ void createAlbedoImage(int width, int height, float max, float min, float * data
 	{
 
 	  int val = scaleFloat(data[idx],max,min);
-	  //cout << idx << " " << data[idx] << " " << val << endl;
 	  setPixel(img,i,j,val);
 	  idx++;
 	}
@@ -1239,7 +1234,6 @@ Image* calculateDepth(std::vector<SPoint2D>seeds, Image * mask, TGradImg gradien
        siter != seeds.end();
        ++siter )
     {
-      cout << "Estimating Depth" << endl;
       TDynImg temp = estimateDepth(gradient,mask,*siter,w,h);
       temp = filterDepth(temp,mask,w,h); 
       imgs.push_back(temp);
@@ -1252,7 +1246,7 @@ Image* calculateDepth(std::vector<SPoint2D>seeds, Image * mask, TGradImg gradien
 /******************************************************************************************/ 
 TDynImg estimateDepth( TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h)
 {
-  cout << "Estimating Depth" << endl;
+ 
   TDynImg retVal( h, vector<float> ( w ) );
   for( int i=0; i < h; i++)
     {
@@ -1261,15 +1255,15 @@ TDynImg estimateDepth( TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h
 	  retVal[i][j] = 0.00;
 	}
     }
-  cout << "Initializing" << endl;
+  //cout << "Initializing" << endl;
   initializeDepth(retVal,pqImg,mask,seed,w,h);
-  cout << "Depth TR" << endl;
+  //cout << "Depth TR" << endl;
   depthTR(retVal,pqImg,mask,seed,w,h);
-  cout << "Depth BR" << endl;
+  //cout << "Depth BR" << endl;
   depthBR(retVal,pqImg,mask,seed,w,h);
-  cout << "Depth BL" << endl;
+  //cout << "Depth BL" << endl;
   depthBL(retVal,pqImg,mask,seed,w,h);
-  cout << "Depth TR" << endl;
+  //cout << "Depth TR" << endl;
   depthTL(retVal,pqImg,mask,seed,w,h);
 
   return retVal;
@@ -1277,7 +1271,6 @@ TDynImg estimateDepth( TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h
 /******************************************************************************************/ 
 TDynImg aggregateDepth( std::vector<TDynImg> imgs, Image* mask, int w, int h )
 {
-  cout << "Aggregatign Depth" << endl;
   TDynImg retVal( h, vector<float> ( w ) );
   for( int i=0; i < h; i++)
     {
@@ -1324,7 +1317,6 @@ float clampFloat(float x, float low, float high)// scale to 0 to 1;
 /******************************************************************************************/ 
 TDynImg filterDepth(TDynImg& img, Image* mask, int w, int h)
 {
-  cout << "Filtering Depth" << endl;
   TDynImg retVal( h, vector<float> ( w ) );
   float max = FLT_MIN;
   float min = FLT_MAX;
@@ -1362,7 +1354,6 @@ TDynImg filterDepth(TDynImg& img, Image* mask, int w, int h)
 /******************************************************************************************/ 
 Image* vector2Img(TDynImg& input, int w, int h)
 {
-  cout << "Converting Depth" << endl;
   Image* retVal = NULL;
   retVal = new Image(); 
   setSize(retVal,h,w);
@@ -1426,11 +1417,11 @@ void initializeDepth(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, 
 void depthTR(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h)
 {
   // this is following the notes. 
-      for(int i=seed.y-1; i >= 0; i--) // y go up
-	{
-  for( int j=seed.x+1; j < w; j++) // go right 
+  for(int i=seed.y-1; i >= 0; i--) // y go up
     {
-
+      for( int j=seed.x+1; j < w; j++) // go right 
+	{
+	  
 	  int test = getPixel(mask,i,j);
 	  if(test > 0 )
 	    {
@@ -1449,17 +1440,17 @@ void depthBR(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, i
   // this is following the notes. 
       for(int i=seed.y+1; i < h; i++ )//y go down
 	{
-  for( int j=seed.x+1; j < w; j++) // x go right
-    {
-
-	  int test = getPixel(mask,i,j);
-	  if(test > 0 )
+	  for( int j=seed.x+1; j < w; j++) // x go right
 	    {
-	      img[i][j] = (0.5*(img[i][j-1]+pqImg[i][j].p))+ // get the x to the left 
-		(0.5*(img[i-1][j]-pqImg[i][j].q)); // and the y above
+	      
+	      int test = getPixel(mask,i,j);
+	      if(test > 0 )
+		{
+		  img[i][j] = (0.5*(img[i][j-1]+pqImg[i][j].p))+ // get the x to the left 
+		    (0.5*(img[i-1][j]-pqImg[i][j].q)); // and the y above
+		}
 	    }
 	}
-    }
 }
 /******************************************************************************************/ 
 void depthBL(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h)
@@ -1467,34 +1458,34 @@ void depthBL(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, i
   // this is following the notes. 
       for(int i=seed.y+1; i < h; i++ )//y go down
 	{
-  for( int j=seed.x-1; j >= 0; j--) // x go left
-    {
-
-	  int test = getPixel(mask,i,j);
-	  if(test > 0 )
+	  for( int j=seed.x-1; j >= 0; j--) // x go left
 	    {
-	      img[i][j] = (0.5*(img[i][j+1]+pqImg[i][j].p)) + // the x to the right 
-		(0.5*(img[i-1][j]+pqImg[i][j].q));	// the y above	
+	      
+	      int test = getPixel(mask,i,j);
+	      if(test > 0 )
+		{
+		  img[i][j] = (0.5*(img[i][j+1]+pqImg[i][j].p)) + // the x to the right 
+		    (0.5*(img[i-1][j]+pqImg[i][j].q));	// the y above	
+		}
 	    }
 	}
-    }
 }
 /******************************************************************************************/ 
 void depthTL(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h)
 {
-	 for(int i=seed.y-1; i >= 0; i--) // y go up
-	   {
-     for( int j=seed.x-1; j >= 0; j--) // x go left 
-       {
-
-	     int test = getPixel(mask,i,j);
-	     if(test > 0 )
-	       {
-		 img[i][j] = (0.5*(img[i][j+1]+pqImg[i][j].p))+ // get the value to the left 
-		   (0.5*(img[i+1][j]+pqImg[i][j].q)); // and the y below
-		 
-	       }
-	   }
-       }
+  for(int i=seed.y-1; i >= 0; i--) // y go up
+    {
+      for( int j=seed.x-1; j >= 0; j--) // x go left 
+	{
+	  
+	  int test = getPixel(mask,i,j);
+	  if(test > 0 )
+	    {
+	      img[i][j] = (0.5*(img[i][j+1]+pqImg[i][j].p))+ // get the value to the left 
+		(0.5*(img[i+1][j]+pqImg[i][j].q)); // and the y below
+	      
+	    }
+	}
+    }
 }
 /******************************************************************************************/ 
