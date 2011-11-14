@@ -1426,15 +1426,19 @@ void initializeDepth(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, 
 void depthTR(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h)
 {
   // this is following the notes. 
-  for( int j=seed.x+1; j < w; j++) // go right 
-    {
       for(int i=seed.y-1; i >= 0; i--) // y go up
 	{
+  for( int j=seed.x+1; j < w; j++) // go right 
+    {
+
 	  int test = getPixel(mask,i,j);
 	  if(test > 0 )
 	    {
-	      img[i][j] = (0.5*(img[i][j-1]+pqImg[i][j].p))+
-		(0.5*(img[i+1][j]+pqImg[i][j].q));
+	      //	      img[i][j] = (0.5*(img[i][j-1]+pqImg[i][j].p))+ // get the x to the left 
+	      //	(0.5*(img[i+1][j]+pqImg[i][j].q)); // and the y below
+	      img[i][j] = (0.5*(img[i][j-1]-pqImg[i][j].p))+ // get the x to the left 
+		(0.5*(img[i+1][j]+pqImg[i+1][j].q)); // and the y below
+
 	    }
 	}
     }
@@ -1443,15 +1447,16 @@ void depthTR(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, i
 void depthBR(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h)
 {
   // this is following the notes. 
-  for( int j=seed.x+1; j < w; j++) // x go right
-    {
       for(int i=seed.y+1; i < h; i++ )//y go down
 	{
+  for( int j=seed.x+1; j < w; j++) // x go right
+    {
+
 	  int test = getPixel(mask,i,j);
 	  if(test > 0 )
 	    {
-	      img[i][j] = (0.5*(img[i][j-1]+pqImg[i][j].p))+
-		(0.5*(img[i-1][j]-pqImg[i][j].q));
+	      img[i][j] = (0.5*(img[i][j-1]+pqImg[i][j].p))+ // get the x to the left 
+		(0.5*(img[i-1][j]-pqImg[i][j].q)); // and the y above
 	    }
 	}
     }
@@ -1460,15 +1465,16 @@ void depthBR(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, i
 void depthBL(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h)
 {
   // this is following the notes. 
-  for( int j=seed.x-1; j >= 0; j--) // x go left
-    {
       for(int i=seed.y+1; i < h; i++ )//y go down
 	{
+  for( int j=seed.x-1; j >= 0; j--) // x go left
+    {
+
 	  int test = getPixel(mask,i,j);
 	  if(test > 0 )
 	    {
-	      img[i][j] = (0.5*(img[i-1][j]+pqImg[i][j].q))+
-		(0.5*(img[i][j+1]+pqImg[i][j].p));//
+	      img[i][j] = (0.5*(img[i][j+1]+pqImg[i][j].p)) + // the x to the right 
+		(0.5*(img[i-1][j]+pqImg[i][j].q));	// the y above	
 	    }
 	}
     }
@@ -1476,19 +1482,19 @@ void depthBL(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, i
 /******************************************************************************************/ 
 void depthTL(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h)
 {
+	 for(int i=seed.y-1; i >= 0; i--) // y go up
+	   {
+     for( int j=seed.x-1; j >= 0; j--) // x go left 
+       {
 
-  for(int i=seed.y-1; i >= 0; i--) // y go up
-    {
-      for( int j=seed.x-1; j >= 0; j--) // x go left 
-	{
-	  int test = getPixel(mask,i,j);
-	  if(test > 0 )
-	    {
-	      img[i][j] = (0.5*(img[i][j+1]+pqImg[i][j].p))+
-		(0.5*(img[i+1][j]+pqImg[i][j].q));
-
-	    }
-	}
-    }
+	     int test = getPixel(mask,i,j);
+	     if(test > 0 )
+	       {
+		 img[i][j] = (0.5*(img[i][j+1]+pqImg[i][j].p))+ // get the value to the left 
+		   (0.5*(img[i+1][j]+pqImg[i][j].q)); // and the y below
+		 
+	       }
+	   }
+       }
 }
 /******************************************************************************************/ 
