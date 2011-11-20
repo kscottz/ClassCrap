@@ -1491,3 +1491,147 @@ void depthTL(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, i
     }
 }
 /******************************************************************************************/ 
+Image* copySubImg( Image * img, int x, int y, int w, int h)
+{
+  Image * retVal = new Image();
+  setSize(retVal,h,w);
+  setColors(retVal,255);
+  int i_idx=0;
+  int j_idx=0;
+  int ispan = h/2;
+  int jspan = w/2;
+  cout << ispan << endl;
+  for(int i=y-ispan;i<=y+ispan;i++)
+    {
+      i_idx = 0;
+      for(int j=x-jspan;j<=x+jspan;j++)
+	{
+	  int c = getPixel(img,i,j);
+	  setPixel(retVal,i_idx,j_idx,c);
+	  i_idx++;
+	}
+      j_idx++;
+    }
+  return( retVal ); 
+}
+/******************************************************************************************/ 
+Image* flipToKernel( Image *img )
+{
+  int w = getNCols(img);
+  int h = getNRows(img);
+  Image* retVal = NULL;
+  retVal = clone(img);
+  int i_idx = h;
+  int j_idx = w;
+  for(int i=0;i<h;i++) //y 
+    {
+      j_idx = w;
+      for(int j=0;j<w;j++)//x
+	{
+	  int c = getPixel(img,i,j);
+	  setPixel(retVal,i_idx,j_idx,c);
+	  j_idx--;
+	}
+      i_idx--;
+    }
+  return retVal;
+}
+/******************************************************************************************/ 
+float  crossCorrelationStep( Image* img, Image* kernel, int x, int y)
+{
+  float retVal = 0.00;
+  float f = 0.00;
+  float t = 0.00;
+  int w = getNCols(img);
+  int h = getNRows(img);
+  int kw = getNCols(kernel);
+  int kh = getNRows(kernel);
+  int i_idx = 0;
+  int j_idx = 0;
+  for( int i=y-(kh/2); i<=y+(kh/2); i++ )
+    {
+      i_idx = 0;
+      for( int j=x-(kw/2); i<=x+(kw/2); j++ )
+	{
+	  if( i > 0 && j > 0 && i < h && j < w ) 
+	    {
+	      int c = getPixel(img,i,j);
+	      int k = getPixel(kernel,i_idx, j_idx);
+	      int cf = (float)c;
+	      float kf = (float)k;
+	      retVal += (cf*kf);
+	      f += (cf*cf);
+	      t += (kf*kf);
+	    }
+	    i_idx++;
+	}
+      j_idx++;
+    }  
+   return retVal/(sqrt(f)*sqrt(t));
+}
+/******************************************************************************************/ 
+TDynImg  templateMatchWindow( Image* img, Image* kernel, int x, int y, int size, 
+			      int& x_max, int& y_max, float& val)
+
+{
+  int w = getNCols(img);
+  int h = getNRows(img);
+  int winsz = size/2;
+  TDynImg retVal( size, vector<float> ( size ) );
+  for( int i=0; i < size; i++)
+    {
+      for( int j=0; j < size; j++ )
+	{
+	  retVal[i][j] = 0.00;
+	}
+    }
+
+  int i_idx = 0;
+  int j_idx = 0;
+  val = 0.00;
+  x_max = 0;
+  y_max = 0;
+  for(int i=y-winsz;i<=y+winsz;i++) //y 
+    {
+      i_idx = 0;
+      for(int j=x-winsz;j<=x+winsz;j++)//x
+	{
+	  float temp = crossCorrelationStep( img, kernel, i, j );  
+	  retVal[i_idx][j_idx] = temp;
+	  if( temp > val )
+	    {
+	      y_max = i;
+	      x_max = j;
+	      val = temp;
+	    }
+	  i_idx++;
+	}
+      j_idx++;
+    }
+
+  return retVal;
+  
+}
+/******************************************************************************************/ 
+/*float getMaxLocation(TDynImg& img, int w, int h, int& x, int& y); // return the position and value of the max value
+{
+  float retVal;
+  for( int i=0; i < h; i++)
+    {
+      for( int j=0; j < w; j++ )
+	{
+	  if( img[i][j] > retVal )
+	    {
+	    }
+	}
+    }
+    }*/
+/******************************************************************************************/ 
+  
+
+
+
+
+
+
+

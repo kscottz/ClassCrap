@@ -60,6 +60,7 @@ struct SObjectLabel
 };
 
 typedef std::vector< std::vector<float> > TDynImg;
+typedef std::vector< std::vector<float> > TDynImgInt;
 
 typedef std::vector< std::vector<Gradient> > TGradImg;
 
@@ -103,7 +104,7 @@ ImageColor * createNormalMap(std::vector<Image*> imgs,
 			     std::vector<SVector3D>& normals);
 bool constructNormal(std::vector<SVector3D>& lights, int choice[2][3], SVector3D& normal,float& albedo);
 int scale(float x); // clamp x=+/-1 to [0,255]
-
+Image* vector2Img(TDynImg& input, int w, int h);
 std::vector<SPoint2D> loadSeedPoints(char* fname); 
 TGradImg loadGradient(char* fname, int& w, int& h);
 Image* calculateDepth(std::vector<SPoint2D>seeds, Image * mask, TGradImg gradient, int w, int h); 
@@ -119,11 +120,12 @@ void depthTR(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, i
 void depthBR(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h);
 void depthBL(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h);
 void depthTL(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h);
-
-
-
-Image* vector2Img(TDynImg & input, int w, int h); //find max and min, clamp copy
-
-
+/******** HW5 **********/
+Image* copySubImg( Image * img, int x, int y, int w, int h);
+Image* flipToKernel( Image *img );
+float  crossCorrelationStep( Image* img, Image* kernel, int x, int y); // do the cross correlation
+TDynImg  templateMatchWindow( Image* img, Image* kernel, int x, int y, int size, 
+			      int& x_max, int& y_max, float& val); // slide the template across the window;
+//float  getMaxLocation(TDynImg& img, int w, int h, int& x, int& y); // return the position and value of the max value
 
 #endif //VISION_UTILITIES_H
