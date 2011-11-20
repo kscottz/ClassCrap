@@ -38,36 +38,42 @@
 
 \end{center}
 \section{Problem 1}
-
- \[
-img(i,j)=\alpha^{\prime\prime} +2\alpha^{\prime} + A(c+k)+Bf 
+The general formula for the irradiance at any point is:
+\[
+I=\frac{\rho}{\pi}kc\cos{\theta_i}=\frac{\rho}{\pi}kc\textbf{n}\cdot\textbf{s}
 \]
-This means the total number of calculations (ignoring the calculations need to start a new row) is $4MN$ additions and $3MN$ additions. For large images the setup cost is negligible and these terms dominate. 
+We can assume, since we have constant brightness, and albedo at a
+point that the $\frac{\rho}{\pi}kc$ is constant. We can also assume
+that illumination is adaptive. Such that:
+\[
+I = I_1+I_2 = \frac{\rho}{\pi}kc(\textbf{n} \cdot \textbf{s}_1 + \textbf{n} \cdot
+\textbf{s}_2) 
+\]
+If we multiply this all out we see that 
+\[
+I = \frac{\rho}{\pi}kc \textbf{n} \cdot (\textbf{s}_1+\textbf{s}_2)
+\] 
+And our light source acts just as the addition of the two
+vectors. When the two vectors do not have the same brightness values,
+$k$ of the $\frac{\rho}{\pi}kc$ terms are not equal. We get the
+following 
+\[
+I=\frac{\rho}{\pi}c(k_1\textbf{n} \cdot \textbf{s}_1+
+k_2\textbf{n} \cdot \textbf{s}_2)=\frac{\rho}{\pi}c\textbf{n}\cdot(k_1\textbf{s}_1+k_2\textbf{s}_2)
+\]
+We can see from this arrangement that the effective lighing direction
+is just the addition of the two direction vectors scaled by the
+relative brightness of the light source. 
 \section{Problem 2}
-Given the Hough equation 
-\[
-0 = x\sin{\theta}-y\cos{\theta}+\rho
-\]
-we rearrange to get:
-\[
-\rho = y\cos{\theta} - x\sin{\theta}
-\]
-Now we want to get this in the form of $y=A\cos{(\theta+\phi)}$ so we can rationalize about the underlying sinusoid. We convert $x$ and $y$ to polar coordinates, namely $x=r\cos{\phi}$ and $y=r\sin{\phi}$ to get:
-\[
-\rho = r \cos{\theta}\sin{\phi}-r\sin{\theta}\cos{\phi}
-\]
-We now use the following trig identity:
-\[
-\sin{(\theta-\beta)}=\sin{\theta}\cos{\beta}-\cos{\theta}\sin{\beta}
-\]
-Which yields (replacing r with its true value):
-\[
-\rho = \sqrt{x^{2}+y^{2}}
-\sin{(\phi-\theta)}
-\]
-Where
-\[
-\phi = cos^{-1}{(\frac{x}{\sqrt{x^{2}+y^{2}}})}
-\]
-It is clear from this equation that in Hough space $x$ and $y$ directly relate to the phase and amplitude of the resulting sinusoid, with the length of the point from the origin relating to the amplitude and the angle from y-axis relating to the phase shift. The period/frequency of the sinusoid is completely independent of the $x$ and $y$ values.
+\subsection{Part 1}
+The curves of constant brightness are just circles inscribed on the
+Gaussian sphere. This is because on a Lambertian surface the
+irradiance is a function of the the surface normal and the lighting
+direction. The surface of the sphere describes a surface normal, and
+the light source solutions represent a cone. The intersection of the
+cone and the sphere describe a circle.  
+\subsection{Part 2}
+Since the contours are just circles on the sphere, the circles can
+only intersect at zero, one, or two points for a solution. Circles can only overlap
+at most two places. 
 \end{document}
