@@ -23,38 +23,17 @@ int main(int argc, char *argv[])
     }
   char * inname = argv[1];
 
-  Image * inImg = new Image();
-  int retVal = readImage(inImg,inname);
-    // threshold 
-  threshold(inImg,5);
-  /* // do a hacked connected components that spits out the result. 
-  int count = connect_components(inImg);
-  vector<SObjectLabel> labels; 
-  labels = get_morphology(inImg);
-  vector<SObjectLabel>::iterator iter;
-  char * oname = argv[2];
-  ofstream myFile;
-  myFile.open(oname);
-  if(myFile.good())
-    {
-      vector<SObjectLabel>::iterator iter;
-      for(iter = labels.begin(); iter != labels.end(); ++iter)
-	{
-	  float a = (float)iter->m_area;
-	  myFile << iter->m_y_pos << " " 
-		 << iter->m_x_pos << " " 
-	         << sqrt(a/PI)
-		 << endl; 
-	}
-    }
-  myFile.close();
+  Image * img0 = new Image();
+  Image * img1 = new Image();
+  Image * output = NULL; 
 
-  if( retVal )
-    {
-      cout << "Error saving file: " << oname << endl;
-      return retVal;
-    }
-  cleanup(inImg);*/
-  // should clean up
+  readImage(img0,argv[1]);
+  readImage(img1,argv[2]);
+  int wndw_sz = atoi(argv[3]);
+  output = doOpticalFlow(img0,img1,wndw_sz);
+  writeImage(output, argv[4]);
+  cleanup(img0);
+  cleanup(img1);
+  cleanup(output);
   return 0;
 }

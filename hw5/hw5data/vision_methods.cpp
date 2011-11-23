@@ -1500,17 +1500,16 @@ Image* copySubImg( Image * img, int x, int y, int w, int h)
   int j_idx=0;
   int ispan = h/2;
   int jspan = w/2;
-  cout << ispan << endl;
-  for(int i=y-ispan;i<=y+ispan;i++)
+  for(int i=y-ispan;i<=y+ispan;i++)//y
     {
-      i_idx = 0;
-      for(int j=x-jspan;j<=x+jspan;j++)
+      j_idx = 0;
+      for(int j=x-jspan;j<=x+jspan;j++)//x
 	{
 	  int c = getPixel(img,i,j);
 	  setPixel(retVal,i_idx,j_idx,c);
-	  i_idx++;
+	  j_idx++;
 	}
-      j_idx++;
+      i_idx++;
     }
   return( retVal ); 
 }
@@ -1548,13 +1547,15 @@ float  crossCorrelationStep( Image* img, Image* kernel, int x, int y)
   int kh = getNRows(kernel);
   int i_idx = 0;
   int j_idx = 0;
-  for( int i=y-(kh/2); i<=y+(kh/2); i++ )
+  for( int i=y-(kh/2); i<=y+(kh/2); i++ )//y
     {
-      i_idx = 0;
-      for( int j=x-(kw/2); i<=x+(kw/2); j++ )
+      j_idx = 0;
+      for( int j=x-(kw/2); j<=x+(kw/2); j++ )//x
 	{
+	  
 	  if( i > 0 && j > 0 && i < h && j < w ) 
 	    {
+	      //cout << i << " " << j << endl;
 	      int c = getPixel(img,i,j);
 	      int k = getPixel(kernel,i_idx, j_idx);
 	      int cf = (float)c;
@@ -1563,11 +1564,17 @@ float  crossCorrelationStep( Image* img, Image* kernel, int x, int y)
 	      f += (cf*cf);
 	      t += (kf*kf);
 	    }
-	    i_idx++;
+	    j_idx++;
 	}
-      j_idx++;
+      i_idx++;
     }  
-   return retVal/(sqrt(f)*sqrt(t));
+      float temp = 0.00;
+      if( retVal > 0 && f > 0.00 && t > 0 )
+	{
+	  temp = retVal/(sqrt(f)*sqrt(t));
+	}
+      //cout << "TEMP= " << temp << endl;
+   return temp;
 }
 /******************************************************************************************/ 
 TDynImg  templateMatchWindow( Image* img, Image* kernel, int x, int y, int size, 
@@ -1577,7 +1584,7 @@ TDynImg  templateMatchWindow( Image* img, Image* kernel, int x, int y, int size,
   int w = getNCols(img);
   int h = getNRows(img);
   int winsz = size/2;
-  TDynImg retVal( size, vector<float> ( size ) );
+  TDynImg retVal( size+1, vector<float> ( size+1 ) );
   for( int i=0; i < size; i++)
     {
       for( int j=0; j < size; j++ )
@@ -1589,27 +1596,101 @@ TDynImg  templateMatchWindow( Image* img, Image* kernel, int x, int y, int size,
   int i_idx = 0;
   int j_idx = 0;
   val = 0.00;
-  x_max = 0;
-  y_max = 0;
+  x_max = x;
+  y_max = y;
+  //cout << "AT: " << x << " " << y << endl;
   for(int i=y-winsz;i<=y+winsz;i++) //y 
     {
       i_idx = 0;
       for(int j=x-winsz;j<=x+winsz;j++)//x
 	{
-	  float temp = crossCorrelationStep( img, kernel, i, j );  
-	  retVal[i_idx][j_idx] = temp;
-	  if( temp > val )
-	    {
-	      y_max = i;
-	      x_max = j;
-	      val = temp;
+	  //cout << "]]]" <<  i_idx << " " << j_idx << " " << winsz << endl;
+	  if( i >= 0 && j >= 0 )
+	    { 
+	      float temp = crossCorrelationStep( img, kernel, j, i );  
+	      //cout << "(" << i << "," << j << ") " << temp << endl; 
+	      //cout << "correlation done" << endl;
+	      retVal[i_idx][j_idx] = temp;
+	      if( temp > val && temp > 0.00 )
+		{
+		  y_max = i;
+		  x_max = j;
+		  val = temp;
+		}
 	    }
 	  i_idx++;
 	}
       j_idx++;
     }
 
+  return retVal; 
+}
+/******************************************************************************************/ 
+ Image* doOpticalFlow(Image* img0, Image* img1, int wndw_sz)
+{
+  int w = getNCols(img0);
+  int h = getNRows(img0);
+  Image* retVal = NULL;
+  retVal = clone(img1);
+  copy(img1,retVal);
+  int half = wndw_sz/2;
+  int sw = (w-wndw_sz)/wndw_sz;
+  int sh = (h-wndw_sz)/wndw_sz;
+  vector<SDirection> directions;
+  cout << sw << "," << sh << endl;
+  for(int i=0;i<=sh;i++) //y 
+    {
+      for(int j=0;j<=sw;j++)//x
+	{
+	  int i_idx = (i*wndw_sz)+half;//y
+	  int j_idx = (j*wndw_sz)+half;//x
+	  //cout << "Finding point for " << i_idx << " " << j_idx << endl; 
+	  int x_v = 0;
+	  int y_v = 0;
+	  float val = 0.00;
+	  Image* sub = copySubImg(img0,j_idx,i_idx,wndw_sz,wndw_sz);
+	  templateMatchWindow( img1,sub,j_idx,i_idx, 40, x_v, y_v, val);
+	  //cout << "Best match for (" << j_idx << "," << i_idx << ")" << "->(" << x_v << "," << y_v << ")" << val << endl;   
+	  int vx = x_v;
+	  int vy = y_v;
+	  SDirection dir;
+	  dir.x1 = vx;
+	  dir.y1 = vy;
+	  dir.x0 = i_idx;
+	  dir.y0 = j_idx;
+	  directions.push_back(dir);
+
+	  setPixel(retVal,i_idx+1,j_idx,0);
+	  setPixel(retVal,i_idx-1,j_idx,0);
+	  setPixel(retVal,i_idx,j_idx+1,0);
+	  setPixel(retVal,i_idx,j_idx-1,0);
+
+	  setPixel(retVal,i_idx+1,j_idx+1,0);
+	  setPixel(retVal,i_idx-1,j_idx-1,0);
+	  setPixel(retVal,i_idx-1,j_idx+1,0);
+	  setPixel(retVal,i_idx+1,j_idx-1,0);
+
+	  line(retVal, vy, vx, i_idx, j_idx, 255 ); 
+	  //cout << "(" << vx << "," << vy << ")" << endl;
+	  //cleanup(sub);
+			       
+	}
+    }
   return retVal;
+}
+/******************************************************************************************/ 
+void copy(Image* in, Image* out)
+{
+  int w = getNCols(in);
+  int h = getNRows(in);
+  for(int i=0;i<h;i++) //y 
+    {
+      for(int j=0;j<w;j++)//x
+	{
+	  int c = getPixel(in,i,j);
+	  setPixel(out,i,j,c);
+	}
+    }
   
 }
 /******************************************************************************************/ 

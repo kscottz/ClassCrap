@@ -23,6 +23,14 @@ struct SVector3D
   float z;
 };
 
+struct SDirection
+{
+  int x0;
+  int y0;
+  int x1;
+  int y1;
+};
+
 struct SMomentData
 {
   int M00;//area
@@ -127,5 +135,7 @@ float  crossCorrelationStep( Image* img, Image* kernel, int x, int y); // do the
 TDynImg  templateMatchWindow( Image* img, Image* kernel, int x, int y, int size, 
 			      int& x_max, int& y_max, float& val); // slide the template across the window;
 //float  getMaxLocation(TDynImg& img, int w, int h, int& x, int& y); // return the position and value of the max value
+Image* doOpticalFlow(Image* img0, Image* img1, int wndw_sz);
+void copy(Image* in, Image* out); 
 
 #endif //VISION_UTILITIES_H
