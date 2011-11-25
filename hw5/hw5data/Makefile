@@ -22,7 +22,7 @@ P1SRC = flow.cpp
 # You can decrease this for better quality outputs, at the
 # expense of computation time, or increase it to get quick results
 # (at reduced quality). Set this to an appropriate value
-STEP = 10
+STEP = 11
 
 # This contains a list of various images and other files generated from 
 # running your programs. By default, it contains the filenames of all files

@@ -1,0 +1,79 @@
+\documentclass{article}
+
+\usepackage{fullpage} % Include this if you want to cram lots of things on a page
+ 
+\usepackage{amsmath} % these are standard macro packages of the American Mathematical Society
+\usepackage{amssymb}
+\usepackage{hyperref}
+%\usepackage{stmaryrd}
+
+\usepackage{epsfig} % if you want figures
+
+%\usepackage{fancyhdr} % These 4 lines are needed to set up the running  header
+%\fancyhead[LE,RO]{Katherine Scott - Homework 1}
+%\fancyhead[RE,LO]{\thepage}
+%\pagestyle{fancy}
+
+\newcommand{\matlab}[1]
+{\centerline{\parbox{.9\textwidth}{\noindent\textsc{\bf MATLAB:} #1}}}
+
+\newcommand{\code}[1]{\texttt{#1}}
+
+\newcommand {\x}{\V{x}}
+\newcommand {\y}{\V{y}}
+\newcommand {\V}[1]{\mbox{\boldmath$#1$}}
+% To add some paragraph space between lines.
+% This also tells LaTeX to preferably break a page on one of these gaps
+% if there is a needed pagebreak nearby.
+\newcommand{\blankline}{\quad\pagebreak[2]}
+
+\begin{document}
+\title{Computer Vision: Homework 5}
+
+\author{Katherine A. Scott}
+\maketitle
+\mbox{}
+\begin{center}
+\href{mailto:katherineAScott@gmail.com}{kas2221@columbia.edu}
+
+\end{center}
+\section{Problem 1}
+The general formula for the irradiance at any point is:
+\[
+I=\frac{\rho}{\pi}kc\cos{\theta_i}=\frac{\rho}{\pi}kc\textbf{n}\cdot\textbf{s}
+\]
+We can assume, since we have constant brightness, and albedo at a
+point that the $\frac{\rho}{\pi}kc$ is constant. We can also assume
+that illumination is adaptive. Such that:
+\[
+I = I_1+I_2 = \frac{\rho}{\pi}kc(\textbf{n} \cdot \textbf{s}_1 + \textbf{n} \cdot
+\textbf{s}_2) 
+\]
+If we multiply this all out we see that 
+\[
+I = \frac{\rho}{\pi}kc \textbf{n} \cdot (\textbf{s}_1+\textbf{s}_2)
+\] 
+And our light source acts just as the addition of the two
+vectors. When the two vectors do not have the same brightness values,
+$k$ of the $\frac{\rho}{\pi}kc$ terms are not equal. We get the
+following 
+\[
+I=\frac{\rho}{\pi}c(k_1\textbf{n} \cdot \textbf{s}_1+
+k_2\textbf{n} \cdot \textbf{s}_2)=\frac{\rho}{\pi}c\textbf{n}\cdot(k_1\textbf{s}_1+k_2\textbf{s}_2)
+\]
+We can see from this arrangement that the effective lighing direction
+is just the addition of the two direction vectors scaled by the
+relative brightness of the light source. 
+\section{Problem 2}
+\subsection{Part 1}
+The curves of constant brightness are just circles inscribed on the
+Gaussian sphere. This is because on a Lambertian surface the
+irradiance is a function of the the surface normal and the lighting
+direction. The surface of the sphere describes a surface normal, and
+the light source solutions represent a cone. The intersection of the
+cone and the sphere describe a circle.  
+\subsection{Part 2}
+Since the contours are just circles on the sphere, the circles can
+only intersect at zero, one, or two points for a solution. Circles can only overlap
+at most two places. 
+\end{document}

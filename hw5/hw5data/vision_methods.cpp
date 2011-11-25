@@ -1555,7 +1555,6 @@ float  crossCorrelationStep( Image* img, Image* kernel, int x, int y)
 	  
 	  if( i > 0 && j > 0 && i < h && j < w ) 
 	    {
-	      //cout << i << " " << j << endl;
 	      int c = getPixel(img,i,j);
 	      int k = getPixel(kernel,i_idx, j_idx);
 	      int cf = (float)c;
@@ -1573,57 +1572,40 @@ float  crossCorrelationStep( Image* img, Image* kernel, int x, int y)
 	{
 	  temp = retVal/(sqrt(f)*sqrt(t));
 	}
-      //cout << "TEMP= " << temp << endl;
    return temp;
 }
 /******************************************************************************************/ 
-TDynImg  templateMatchWindow( Image* img, Image* kernel, int x, int y, int size, 
-			      int& x_max, int& y_max, float& val)
+float templateMatchWindow( Image* img, Image* kernel, int x, int y, int size, 
+			      int& x_max, int& y_max)
 
 {
   int w = getNCols(img);
   int h = getNRows(img);
   int winsz = size/2;
-  TDynImg retVal( size+1, vector<float> ( size+1 ) );
-  for( int i=0; i < size; i++)
-    {
-      for( int j=0; j < size; j++ )
-	{
-	  retVal[i][j] = 0.00;
-	}
-    }
-
+  float val = 0.00; 
   int i_idx = 0;
   int j_idx = 0;
   val = 0.00;
   x_max = x;
   y_max = y;
-  //cout << "AT: " << x << " " << y << endl;
   for(int i=y-winsz;i<=y+winsz;i++) //y 
     {
-      i_idx = 0;
-      for(int j=x-winsz;j<=x+winsz;j++)//x
+      for(int j=x-winsz;j<=x+winsz;j++)//x // move the window
 	{
-	  //cout << "]]]" <<  i_idx << " " << j_idx << " " << winsz << endl;
 	  if( i >= 0 && j >= 0 )
 	    { 
+	      // do the cross correlation
 	      float temp = crossCorrelationStep( img, kernel, j, i );  
-	      //cout << "(" << i << "," << j << ") " << temp << endl; 
-	      //cout << "correlation done" << endl;
-	      retVal[i_idx][j_idx] = temp;
-	      if( temp > val && temp > 0.00 )
+	      if( temp > val && temp > 0.00 ) // save the results
 		{
 		  y_max = i;
 		  x_max = j;
 		  val = temp;
 		}
 	    }
-	  i_idx++;
 	}
-      j_idx++;
     }
-
-  return retVal; 
+  return val;
 }
 /******************************************************************************************/ 
  Image* doOpticalFlow(Image* img0, Image* img1, int wndw_sz)
@@ -1636,30 +1618,30 @@ TDynImg  templateMatchWindow( Image* img, Image* kernel, int x, int y, int size,
   int half = wndw_sz/2;
   int sw = (w-wndw_sz)/wndw_sz;
   int sh = (h-wndw_sz)/wndw_sz;
-  vector<SDirection> directions;
-  cout << sw << "," << sh << endl;
+  //vector<SDirection> directions;
   for(int i=0;i<=sh;i++) //y 
     {
       for(int j=0;j<=sw;j++)//x
 	{
 	  int i_idx = (i*wndw_sz)+half;//y
 	  int j_idx = (j*wndw_sz)+half;//x
-	  //cout << "Finding point for " << i_idx << " " << j_idx << endl; 
 	  int x_v = 0;
 	  int y_v = 0;
 	  float val = 0.00;
 	  Image* sub = copySubImg(img0,j_idx,i_idx,wndw_sz,wndw_sz);
-	  templateMatchWindow( img1,sub,j_idx,i_idx, 40, x_v, y_v, val);
-	  //cout << "Best match for (" << j_idx << "," << i_idx << ")" << "->(" << x_v << "," << y_v << ")" << val << endl;   
+	  val = templateMatchWindow( img1,sub,j_idx,i_idx, 40, x_v, y_v);
 	  int vx = x_v;
 	  int vy = y_v;
-	  SDirection dir;
-	  dir.x1 = vx;
-	  dir.y1 = vy;
-	  dir.x0 = i_idx;
-	  dir.y0 = j_idx;
-	  directions.push_back(dir);
+	  /*
+	    SDirection dir;
+	    dir.x1 = vx;
+	    dir.y1 = vy;
+	    dir.x0 = i_idx;
+	    dir.y0 = j_idx;
+	    directions.push_back(dir);
+	  */
 
+	  // Draw the output
 	  setPixel(retVal,i_idx+1,j_idx,0);
 	  setPixel(retVal,i_idx-1,j_idx,0);
 	  setPixel(retVal,i_idx,j_idx+1,0);
@@ -1671,9 +1653,6 @@ TDynImg  templateMatchWindow( Image* img, Image* kernel, int x, int y, int size,
 	  setPixel(retVal,i_idx+1,j_idx-1,0);
 
 	  line(retVal, vy, vx, i_idx, j_idx, 255 ); 
-	  //cout << "(" << vx << "," << vy << ")" << endl;
-	  //cleanup(sub);
-			       
 	}
     }
   return retVal;
@@ -1690,23 +1669,8 @@ void copy(Image* in, Image* out)
 	  int c = getPixel(in,i,j);
 	  setPixel(out,i,j,c);
 	}
-    }
-  
+    }  
 }
-/******************************************************************************************/ 
-/*float getMaxLocation(TDynImg& img, int w, int h, int& x, int& y); // return the position and value of the max value
-{
-  float retVal;
-  for( int i=0; i < h; i++)
-    {
-      for( int j=0; j < w; j++ )
-	{
-	  if( img[i][j] > retVal )
-	    {
-	    }
-	}
-    }
-    }*/
 /******************************************************************************************/ 
   
 

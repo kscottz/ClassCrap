@@ -129,13 +129,13 @@ void depthBR(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, i
 void depthBL(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h);
 void depthTL(TDynImg& img, TGradImg& pqImg, Image* mask, SPoint2D seed, int w, int h);
 /******** HW5 **********/
-Image* copySubImg( Image * img, int x, int y, int w, int h);
-Image* flipToKernel( Image *img );
-float  crossCorrelationStep( Image* img, Image* kernel, int x, int y); // do the cross correlation
-TDynImg  templateMatchWindow( Image* img, Image* kernel, int x, int y, int size, 
-			      int& x_max, int& y_max, float& val); // slide the template across the window;
+Image* copySubImg( Image * img, int x, int y, int w, int h); // Get a subimage for the kernel 
+Image* flipToKernel( Image *img ); // not used
+float  crossCorrelationStep( Image* img, Image* kernel, int x, int y); // do the normalized cross correlation at a particular location
+float  templateMatchWindow( Image* img, Image* kernel, int x, int y, int size, // template match across a whole area.
+			      int& x_max, int& y_max ); // slide the template across the window;
 //float  getMaxLocation(TDynImg& img, int w, int h, int& x, int& y); // return the position and value of the max value
-Image* doOpticalFlow(Image* img0, Image* img1, int wndw_sz);
-void copy(Image* in, Image* out); 
+Image* doOpticalFlow(Image* img0, Image* img1, int wndw_sz); // main entry point for the optical flow calculation
+void copy(Image* in, Image* out); // copy a whole image into the out buffer.
 
 #endif //VISION_UTILITIES_H
