@@ -1563,6 +1563,10 @@ float  crossCorrelationStep( Image* img, Image* kernel, int x, int y)
 	      f += (cf*cf);
 	      t += (kf*kf);
 	    }
+	  else
+	    { // I am lazy... eh, bail if we hit an edge
+	      return 0.00;
+	    }
 	    j_idx++;
 	}
       i_idx++;
@@ -1585,9 +1589,16 @@ float templateMatchWindow( Image* img, Image* kernel, int x, int y, int size,
   float val = 0.00; 
   int i_idx = 0;
   int j_idx = 0;
+  float avg=0.00,stdev=0.00;
   val = 0.00;
   x_max = x;
   y_max = y;
+  avgstd(kernel, avg, stdev);
+  if( stdev < 1.7 )
+    {
+      //cout << "Crap Kernel" << endl;
+      return 0.00;
+    }
   for(int i=y-winsz;i<=y+winsz;i++) //y 
     {
       for(int j=x-winsz;j<=x+winsz;j++)//x // move the window
@@ -1604,6 +1615,13 @@ float templateMatchWindow( Image* img, Image* kernel, int x, int y, int size,
 		}
 	    }
 	}
+    }
+  //cout << "VALUE: " << val << endl;
+  if( val < 0.97 ) 
+    {
+      //cout << "REJECT!" << endl;
+      x_max = x;
+      y_max = y; 
     }
   return val;
 }
@@ -1629,18 +1647,9 @@ float templateMatchWindow( Image* img, Image* kernel, int x, int y, int size,
 	  int y_v = 0;
 	  float val = 0.00;
 	  Image* sub = copySubImg(img0,j_idx,i_idx,wndw_sz,wndw_sz);
-	  val = templateMatchWindow( img1,sub,j_idx,i_idx, 40, x_v, y_v);
+	  val = templateMatchWindow( img1,sub,j_idx,i_idx, 20, x_v, y_v);
 	  int vx = x_v;
 	  int vy = y_v;
-	  /*
-	    SDirection dir;
-	    dir.x1 = vx;
-	    dir.y1 = vy;
-	    dir.x0 = i_idx;
-	    dir.y0 = j_idx;
-	    directions.push_back(dir);
-	  */
-
 	  // Draw the output
 	  setPixel(retVal,i_idx+1,j_idx,0);
 	  setPixel(retVal,i_idx-1,j_idx,0);
@@ -1672,8 +1681,33 @@ void copy(Image* in, Image* out)
     }  
 }
 /******************************************************************************************/ 
-  
-
+void avgstd(Image* in, float& avg, float& stdev)
+{
+  int w = getNCols(in);
+  int h = getNRows(in);
+  avg = 0.00;
+  stdev = 0.00;
+  for(int i=0;i<h;i++) //y 
+    {
+      for(int j=0;j<w;j++)//x
+	{
+	  int c = getPixel(in,i,j);
+	  avg += ((float)c);
+	  
+	}
+    } 
+  avg = avg/((float)(w*h));
+  for(int i=0;i<h;i++) //y 
+    {
+      for(int j=0;j<w;j++)//x
+	{
+	  int c = getPixel(in,i,j);
+	  stdev += (((float)c)-avg)*(((float)c)-avg);  
+	}
+    }
+  stdev = sqrt(stdev/((float)(w*h)));
+}  
+/******************************************************************************************/ 
 
 
 

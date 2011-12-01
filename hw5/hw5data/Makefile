@@ -63,7 +63,7 @@ vision_methods.o: vision_methods.cpp vision_methods.h
 # 'make submit' creates a tar of all files in the directory
 # NOTE 1: It also runs 'make clean' before submission.
  submit: clean
-	tar -czvf $(UNI)-hw5.tar.gz $(P1SRC) $(UTILS) $(UTILSH) Makefile README.txt *.cpp *.c *.h
+	tar -czvf $(UNI)-hw5.tar.gz $(P1SRC) $(UTILS) $(UTILSH) Makefile README.txt *.cpp *.c *.h *.pgm
 
 # 'make clean' removes all output and temporary files
 clean:

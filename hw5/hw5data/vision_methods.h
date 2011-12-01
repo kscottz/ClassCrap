@@ -137,5 +137,6 @@ float  templateMatchWindow( Image* img, Image* kernel, int x, int y, int size, /
 //float  getMaxLocation(TDynImg& img, int w, int h, int& x, int& y); // return the position and value of the max value
 Image* doOpticalFlow(Image* img0, Image* img1, int wndw_sz); // main entry point for the optical flow calculation
 void copy(Image* in, Image* out); // copy a whole image into the out buffer.
+void avgstd(Image* in, float& avg, float& stdev);
 
 #endif //VISION_UTILITIES_H
