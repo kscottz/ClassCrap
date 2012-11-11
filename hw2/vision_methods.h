@@ -7,6 +7,8 @@
 #define COLOR_WHITE 255
 #define COLOR_BLACK 0 
 
+
+//Maxim thinks this should all be binary!!!
 struct SMomentData
 {
   int M00;//area
